@@ -1,5 +1,6 @@
 package com.example.tt;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -131,14 +132,14 @@ public class Register_Activity extends AppCompatActivity {
                 String userEmail = emailText.getText().toString();
 
                 //ID 중복체크를 했는지 확인함
-                if(!validate){
+                /*if(!validate){
                     AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
                     dialog = builder.setMessage("First Check ID plz")
                             .setNegativeButton("OK", null)
                             .create();
                     dialog.show();
                     return;
-                }
+                }*/
 
                 //한칸이라도 빠뜨렸을 경우
                 if(userID.equals("")||userPassword.equals("")||userage.equals("")||userEmail.equals("")||userGender.equals("")){
@@ -152,27 +153,29 @@ public class Register_Activity extends AppCompatActivity {
 
                 //회원가입 시작
                 Response.Listener<String> responseListener = new Response.Listener<String>(){
-
                     @Override
                     public void onResponse(String response) {
-                        try{
+                        try {
                             JSONObject jsonResponse = new JSONObject(response);
-                            boolean success = jsonResponse.getBoolean("success");
-                            if(success){//사용할 수 있는 아이디라면
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
-                                dialog = builder.setMessage("Register Your ID")
-                                        .setPositiveButton("OK", null)
-                                        .create();
-                                dialog.show();
-                                finish();//액티비티를 종료시킴(회원등록 창을 닫음)
-                            }else{//사용할 수 없는 아이디라면
+                            try {
+                                String success = jsonResponse.get("key").toString();
+                            } catch (Exception e) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
                                 dialog = builder.setMessage("Register fail")
                                         .setNegativeButton("OK", null)
                                         .create();
                                 dialog.show();
                             }
-
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
+                            dialog = builder.setMessage("Register Your ID")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+                                    })
+                                    .create();
+                            dialog.show();
                         }
                         catch(Exception e){
                             e.printStackTrace();
@@ -199,4 +202,5 @@ public class Register_Activity extends AppCompatActivity {
             dialog = null;
         }
     }
+
 }

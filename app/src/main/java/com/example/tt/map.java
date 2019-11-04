@@ -1,6 +1,7 @@
 package com.example.tt;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -66,14 +67,7 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
         gmap = googleMap;
         //Location cur_location = mfusedLocationProviderClient.getLastLocation().getResult();
         //LatLng location = new LatLng(cur_location.getLatitude(), cur_location.getLongitude()); //현재위치
-        double start_lat = 37.50640;
-        double start_lng = 126.958563;
-        LatLng location = new LatLng(start_lat, start_lng); //중앙대정문
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.title("출발지");
-        markerOptions.snippet("여기서부터");
-        markerOptions.position(location);
-        startMarker = googleMap.addMarker((markerOptions));
+
         //goal_lat = 37.506840;
         //goal_lng = 126.953;
         LatLng goal = new LatLng(goal_lat, goal_lng); //목적지
@@ -84,16 +78,29 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
         goalmarkeroption.position(goal);
         goalMarker = googleMap.addMarker((goalmarkeroption));
 
-        LatLng camera = new LatLng((start_lat + goal_lat)/2, (start_lng + goal_lng) / 2);
-
-        double zoom = 20 - (Math.log(Math.max(Math.abs(start_lat - goal_lat), Math.abs(start_lng - goal_lng)) / 0.00035) / Math.log(2));
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(camera, (float)zoom));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(goal, (float)15));
 
 
-
-
-
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+            return;
+        }
+        mfusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if(location != null) {
+                    LatLng mycurloc =  new LatLng(location.getLatitude(), location.getLongitude());
+                    startMarker.setPosition(mycurloc);
+                    startMarker.setTitle("현재 위치 : " + location.getLatitude() + ", "  + location.getLongitude());
+                    LatLng camera = new LatLng((startMarker.getPosition().latitude + goalMarker.getPosition().latitude)/2, (startMarker.getPosition().longitude + goalMarker.getPosition().longitude) / 2);
+                    double zoom = 20 - (Math.log(Math.max(Math.abs(startMarker.getPosition().latitude - goalMarker.getPosition().latitude), Math.abs(startMarker.getPosition().longitude - goalMarker.getPosition().longitude)) / 0.00035) / Math.log(2));
+                    gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(camera, (float)zoom));
+                }
+                else{
+                    new AlertDialog.Builder(map.this).setMessage("현재 위치를 받을 수 없습니다.").setPositiveButton("OK",null).show();
+                }
+            }
+        });
     }
 
 

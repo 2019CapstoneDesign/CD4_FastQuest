@@ -16,12 +16,14 @@ import androidx.core.app.ActivityCompat;
 import com.example.tt.data.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 public class start extends AppCompatActivity {
     Button startButton;
     private FusedLocationProviderClient mfusedLocationProviderClient;
     User user = User.getInstance();
+    LatLng start_cur_loc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +34,7 @@ public class start extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                startActivity(new Intent(getApplicationContext(), Login.class));
             }
         });
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -43,7 +45,8 @@ public class start extends AppCompatActivity {
             @Override
             public void onSuccess(Location location) {
                 if(location != null) {
-                    user.setUser_location(location);
+                    start_cur_loc = new LatLng(location.getLatitude(),location.getLongitude());
+                    user.setUser_location(start_cur_loc);
                 }
             }
         });
@@ -63,7 +66,8 @@ public class start extends AppCompatActivity {
                         @Override
                         public void onSuccess(Location location) {
                             if(location != null) {
-                                user.setUser_location(location);
+                                start_cur_loc = new LatLng(location.getLatitude(),location.getLongitude());
+                                user.setUser_location(start_cur_loc);
                             }
                         }
                     });

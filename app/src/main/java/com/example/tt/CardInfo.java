@@ -53,7 +53,7 @@ public class CardInfo extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String url = "http://52.79.125.108/api/" + user.getNickname();
+        String url = "http://52.79.125.108/api/users/" + user.getNickname();
         value = new Vector<>();
 
         JSONObject cat_json = null;

@@ -11,19 +11,18 @@ import java.util.Map;
  * Created by kch on 2018. 5. 14..
  */
 
-public class RegisterRequest extends StringRequest {
+public class loginRequest extends StringRequest {
 
-    final static private String URL = "http://52.79.125.108/rest-auth/registration/";
+    final static private String URL = "http://52.79.125.108/rest-auth/login/";
     private Map<String, String> parameters;
 
-    public RegisterRequest(String userID, String userPassword, String userage, String userGender, String userEmail, Response.Listener<String> listener){
+    public loginRequest(String userID, String userPassword, Response.Listener<String> listener){
         super(Method.POST, URL, listener, null);//해당 URL에 POST방식으로 파마미터들을 전송함
         parameters = new HashMap<>();
         parameters.put("username", userID);
-        parameters.put("password1", userPassword);
-        parameters.put("password2", userPassword);
+        parameters.put("password", userPassword);
         //parameters.put("userGender", userGender);
-        parameters.put("email", userEmail);
+        //parameters.put("email", userEmail);
     }
 
     @Override

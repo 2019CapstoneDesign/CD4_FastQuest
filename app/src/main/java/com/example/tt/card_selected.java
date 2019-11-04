@@ -18,6 +18,7 @@ import com.example.tt.data.Activity;
 import com.example.tt.data.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
@@ -35,10 +36,11 @@ public class card_selected extends AppCompatActivity {
     TextView act_detail;
     Intent mintent;
     private FusedLocationProviderClient mfusedLocationProviderClient;
-    User user = User.getInstance();
-
+    LatLng correct_cur_loc;
+    User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        user  = User.getInstance();
         super.onCreate(savedInstanceState);
         final Intent intent = getIntent();
         mfusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -46,8 +48,10 @@ public class card_selected extends AppCompatActivity {
         //집단, 안밖,cat_name에 해당하는 activity를 가져와서 정보 표시
         String url = "http://52.79.125.108/api/activity/" + cat_name;
         setContentView(R.layout.activity_card_selected);
-        Activity play_activity = new Activity("11", "오리보트 타자","오리보트","한강에 가서 오리보트를 타시오",
-                'y','y', "서울 한강", 37.517254, 126.959155, 22);
+        Activity play_activity = new Activity("0", "null","null","null",
+                'n','n', "null", 0, 0, 0);
+                //new Activity("11", "오리보트 타자","오리보트","한강에 가서 오리보트를 타시오",
+                //'y','y', "서울 한강", 37.517254, 126.959155, 22);
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
@@ -57,18 +61,22 @@ public class card_selected extends AppCompatActivity {
             @Override
             public void onSuccess(Location location) {
                 if(location != null) {
-                    user.setUser_location(location);
+                    correct_cur_loc = new LatLng(location.getLatitude(),location.getLongitude());
+                    user.setUser_location(correct_cur_loc);
+                }
+                else{
+                    LatLng loc_temp = new LatLng(37.506840,126.953);
+                    user.setUser_location(loc_temp);
                 }
             }
         });
-        /*try {
+        try {
             play_activity = set_info(url);
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
-
+        }
         act_title = (TextView)findViewById(R.id.Title);
         act_title.setText(play_activity.title);
         act_detail = (TextView)findViewById(R.id.Detail);
@@ -93,35 +101,42 @@ public class card_selected extends AppCompatActivity {
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(mintent);
+                startActivity(new Intent(getApplicationContext(), createreview.class));
             }
         });
     }
-    public Activity set_info(String url) throws JSONException, IOException{
+    public Activity set_info(String url) throws JSONException, IOException {
         url_json Read = new url_json();
         Read.readJsonFromUrl(url);
-        JSONObject activities_json  = Read.readJsonFromUrl(url);
+        JSONObject activities_json = Read.readJsonFromUrl(url);
         JSONArray activities_arr = new JSONArray(activities_json.get("temp").toString());
         List<Activity> activities = new ArrayList<Activity>();
-        for(int i = 0; i < activities_arr.length(); i++) {
-            JSONObject temp_json_activity = (JSONObject)activities_arr.get(i);
+        for (int i = 0; i < activities_arr.length(); i++) {
+            JSONObject temp_json_activity = (JSONObject) activities_arr.get(i);
             Activity temp_activity = new Activity(temp_json_activity);
             //temp_activity.score = 현재위치 위도 경도, 활동 위도 경도 차이
-            double lat = Math.pow(Math.abs(temp_activity.latitude - user.getUser_location().getLatitude()),2);
-            double lon = Math.pow(Math.abs(temp_activity.longitude - user.getUser_location().getLongitude()),2);
-            float score = (float)Math.sqrt(lat + lon);
+            double lat = Math.pow(temp_activity.latitude - user.getUser_location().latitude, 2);
+            double lon = Math.pow(temp_activity.longitude - user.getUser_location().longitude, 2);
+            float score = (float) Math.sqrt(lat + lon);
             temp_activity.score = score;
             activities.add(temp_activity);
         }
-        float min = activities.get(0).score;
-        int index = 0;
-        for(int u = 0; u < activities.size(); u++) {
-            if(activities.get(u).score < min){
-                min = activities.get(u).score;
-                index = u;
+        if (activities.size() > 0) {
+            float min = activities.get(0).score;
+            int index = 0;
+            for (int u = 0; u < activities.size(); u++) {
+                if (activities.get(u).score < min) {
+                    min = activities.get(u).score;
+                    index = u;
+                }
             }
+            return activities.get(index);
         }
-        return activities.get(index);
+        else{
+            Activity error = new Activity("0", "null","null","null",
+                    'n','n', "null", 0, 0, 0);
+            return error;
+        }
     }
 
     public void openmap(View view) {
@@ -141,7 +156,8 @@ public class card_selected extends AppCompatActivity {
                         @Override
                         public void onSuccess(Location location) {
                             if(location != null) {
-                                user.setUser_location(location);
+                                correct_cur_loc = new LatLng(location.getLatitude(),location.getLongitude());
+                                user.setUser_location(correct_cur_loc);
                             }
                         }
                     });

@@ -1,11 +1,11 @@
 package com.example.tt.data;
 
-import android.location.Location;
+import com.google.android.gms.maps.model.LatLng;
 
 public class User {
 
     private String user_id;
-    private Location user_location;
+    private LatLng user_location;
     private String email;
     private String nickname;
     public int score;
@@ -56,8 +56,8 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     public String getNickname() { return nickname; }
     public void setNickname(String nickname) { this.nickname = nickname; }
-    public Location getUser_location() { return user_location; }
-    public void setUser_location(Location user_location) { this.user_location = user_location; }
+    public LatLng getUser_location() { return user_location; }
+    public void setUser_location(LatLng user_location) { this.user_location = user_location; }
 
     public static User getInstance() {
         return LazyHolder.INSTANCE;

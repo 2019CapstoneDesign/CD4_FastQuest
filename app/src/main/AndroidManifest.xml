@@ -45,7 +45,7 @@ package="com.example.tt">
 
     <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="" />
+        android:value="AIzaSyDVVDAUrVEFhc2fg8gJWSHBB1vGGtps2jY" />
 
     <activity android:name=".moim" />
     <activity android:name=".review_check" />

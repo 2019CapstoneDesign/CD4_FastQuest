@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -108,6 +109,15 @@ public class createreview extends AppCompatActivity {
        image = (ImageView)findViewById(R.id.input_image);
        review_title = (EditText)findViewById(R.id.input_reviw_title);
        review_content = (EditText)findViewById(R.id.input_reviw_content);
+
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+            }
+        });
 
 
     }

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 
 public class pre_cat extends AppCompatActivity implements View.OnClickListener {
-
     ToggleButton pre_art;
     ToggleButton pre_book;
     ToggleButton pre_camera;

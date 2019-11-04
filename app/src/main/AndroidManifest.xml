@@ -49,9 +49,9 @@ package="com.example.tt">
 
     <activity android:name=".moim" />
     <activity android:name=".review_check" />
+    <activity android:name=".review"/>
     <activity android:name=".profile_detail" />
     <activity android:name=".pre_cat" />
-    <activity android:name=".profile" />
     <activity android:name=".Register_Activity" />
     <activity android:name=".Login" />
     <activity android:name=".createreview" />

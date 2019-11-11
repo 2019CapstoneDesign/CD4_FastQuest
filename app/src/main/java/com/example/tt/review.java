@@ -11,13 +11,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class review extends AppCompatActivity {
+
+    private JSONObject cat_json = null;
+    private JSONArray cat_arr = null;
+    final url_json read = new url_json();
+    private String url;
 
     private RecyclerAdapter adapter;
 
@@ -58,7 +70,6 @@ public class review extends AppCompatActivity {
         });
 
         init();
-
         getData();
     }
 
@@ -74,26 +85,9 @@ public class review extends AppCompatActivity {
 
     private void getData() {
 
-        List<String> listTitle = Arrays.asList("pre_art", "pre_book", "pre_camera", "pre_dance", "pre_food", "pre_game", "pre_language", "pre_meet",
-                "pre_travel", "pre_volunteer", "pre_art", "pre_book", "pre_music", "pre_movie", "pre_music", "pre_book");
-        List<String> listContent = Arrays.asList(
-                "art.",
-                "book.",
-                "camera.",
-                "dance.",
-                "food.",
-                "game.",
-                "language.",
-                "meet.",
-                "travel.",
-                "volunteer",
-                "art.",
-                "book",
-                "music",
-                "movie,.",
-                "music.",
-                "book"
-        );
+
+        //그냥 이미지 샘플 입력용
+
         List<Integer> listResId = Arrays.asList(
                 R.drawable.pre_art,
                 R.drawable.pre_book,
@@ -112,14 +106,28 @@ public class review extends AppCompatActivity {
                 R.drawable.pre_music,
                 R.drawable.pre_book
         );
-        for (int i = 0; i < listTitle.size(); i++) {
-            Data data = new Data();
-            data.setTitle(listTitle.get(i));
-            data.setContent(listContent.get(i));
-            data.setResId(listResId.get(i));
 
-            adapter.addItem(data);
+        url = "http://52.79.125.108/api/feed";
+        try {
+            cat_json = read.readJsonFromUrl(url);
+            cat_arr = new JSONArray(cat_json.get("temp").toString());
+            for (int i = 0; i < cat_arr.length(); i++) {
+                JSONObject temp = (JSONObject) cat_arr.get(i);
+                Data data = new Data();
+                data.setTitle(temp.get("title").toString());
+                data.setContent(temp.get("content").toString());
+                data.setAuthor(temp.get("author").toString());
+               // data.setResId(temp.get("image");
+                data.setResId(listResId.get(i));
+                data.setUrlImage("http://52.79.125.108/"+temp.get("image").toString());
+                adapter.addItem(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        //Toast.makeText(getApplicationContext(), cat_json.toString(), Toast.LENGTH_SHORT).show();
 
         adapter.notifyDataSetChanged();
     }

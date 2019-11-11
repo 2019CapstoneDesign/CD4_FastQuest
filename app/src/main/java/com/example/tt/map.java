@@ -6,7 +6,6 @@ import android.app.FragmentManager;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,10 +59,11 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
             }
         });*/
 
+
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         gmap = googleMap;
         //Location cur_location = mfusedLocationProviderClient.getLastLocation().getResult();
         //LatLng location = new LatLng(cur_location.getLatitude(), cur_location.getLongitude()); //현재위치
@@ -79,8 +79,6 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
         goalMarker = googleMap.addMarker((goalmarkeroption));
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(goal, (float)15));
-
-
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
             return;
@@ -89,9 +87,11 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onSuccess(Location location) {
                 if(location != null) {
-                    LatLng mycurloc =  new LatLng(location.getLatitude(), location.getLongitude());
-                    startMarker.setPosition(mycurloc);
-                    startMarker.setTitle("현재 위치 : " + location.getLatitude() + ", "  + location.getLongitude());
+                    LatLng mycurloc =  new LatLng(37.4963 ,126.9388);
+                    MarkerOptions startMarkeroption = new MarkerOptions();
+                    startMarkeroption.position(mycurloc);
+                    startMarkeroption.title("현재 위치 : " + location.getLatitude() + ", "  + location.getLongitude());
+                    startMarker = googleMap.addMarker(startMarkeroption);
                     LatLng camera = new LatLng((startMarker.getPosition().latitude + goalMarker.getPosition().latitude)/2, (startMarker.getPosition().longitude + goalMarker.getPosition().longitude) / 2);
                     double zoom = 20 - (Math.log(Math.max(Math.abs(startMarker.getPosition().latitude - goalMarker.getPosition().latitude), Math.abs(startMarker.getPosition().longitude - goalMarker.getPosition().longitude)) / 0.00035) / Math.log(2));
                     gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(camera, (float)zoom));
@@ -101,9 +101,12 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
                 }
             }
         });
+
+
+
     }
 
-
+/*
     public void currentLocation(View view) {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
@@ -123,7 +126,7 @@ public class map extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-    }
+    }*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

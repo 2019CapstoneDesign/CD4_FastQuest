@@ -99,7 +99,7 @@ public class review_check extends AppCompatActivity {
                 data.setAuthor(temp.get("author").toString());
                 // data.setResId(temp.get("image");
                 data.setResId(listResId.get(i));
-                data.setUrlImage("http://52.79.125.108/"+temp.get("image").toString());
+                data.setUrlImage(temp.get("image").toString());
                 adapter.addItem(data);
             }
         } catch (IOException e) {

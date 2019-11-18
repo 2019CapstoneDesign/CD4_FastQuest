@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tt.model.Data;
 import com.like.IconType;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
@@ -155,7 +156,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
                 public void onAnimationUpdate(ValueAnimator animation) {
                     int value = (int) animation.getAnimatedValue();
 
-                    imageView2.getLayoutParams().height = value;
+                    //imageView2.getLayoutParams().height = value;
                     imageView2.requestLayout();
                     imageView2.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
                     textView3.requestLayout();

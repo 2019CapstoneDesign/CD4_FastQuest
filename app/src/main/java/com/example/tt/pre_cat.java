@@ -41,7 +41,6 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
     ToggleButton pre_travel;
     ToggleButton pre_volunteer;
     ChipGroup chipGroup;
-    ChipGroup chipGroup1;
     Button saveButton;
     ImageButton backButton;
 
@@ -55,6 +54,7 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
 
     static ArrayList<Boolean> BoolList = new ArrayList<Boolean>();
     ArrayList<String> scat_list = new ArrayList<String>();
+    ArrayList<String> scat_list_save = new ArrayList<String>();
 
 
     @Override
@@ -104,7 +104,8 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
         });
 
         chipGroup = findViewById(R.id.chip_group);
-        chipGroup1 = findViewById(R.id.chip_group1);
+
+        scat_list_save.add("tmp");
 
 
     }
@@ -119,8 +120,25 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onClick(DialogInterface dialog, int id) {
 
+
+                //DELETE and For-loop PUT
+                for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                    Chip chip = (Chip) chipGroup.getChildAt(i);
+                    boolean foo = scat_list_save.contains(chip.getText().toString());
+                    if (chip.isChecked() && !foo) {
+                        scat_list_save.add(chip.getText().toString());
+
+                    } else if (!chip.isChecked() && foo) {
+                        scat_list_save.remove(chip.getText().toString());
+                    }
+                }
+
                 UserData userdata = new UserData();
-                Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT).show();
+                for (int i = 0; i < scat_list_save.size(); i++) {
+
+                    Toast.makeText(getApplicationContext(), scat_list_save.get(i), Toast.LENGTH_SHORT).show();
+                }
+
                 // startActivity(new Intent(getApplicationContext(),MainActivity.class));
 
 
@@ -143,40 +161,50 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
 
         switch (v.getId()) {
             case R.id.pre_Art:
-                if (pre_art.isChecked()) {
-                    chipGroup.removeAllViews();
-                    scat_list.clear();
-                    url = "http://52.79.125.108/api/lcat/공예";
-                    try {
-                        cat_json = read.readJsonFromUrl(url);
-                        cat_arr = new JSONArray(cat_json.get("temp").toString());
-                        for (int i = 0; i < cat_arr.length(); i++) {
-                            JSONObject temp = (JSONObject) cat_arr.get(i);
-                            scat_list.add(temp.get("cat_name").toString());
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                chipGroup.removeAllViews();
+                scat_list.clear();
+                for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                    Chip chip = (Chip) chipGroup.getChildAt(i);
+                    boolean foo = scat_list_save.contains(chip.getText().toString());
+                    if (chip.isChecked() && !foo) {
+                        scat_list_save.add(chip.getText().toString());
+
+                    } else if (!chip.isChecked() && foo) {
+                        scat_list_save.remove(chip.getText().toString());
                     }
-                    Toast.makeText(getApplicationContext(), pre_art.getText(), Toast.LENGTH_SHORT).show();
+                }
 
-                    inflater = LayoutInflater.from(pre_cat.this);
+                url = "http://52.79.125.108/api/lcat/공예";
+                try {
+                    cat_json = read.readJsonFromUrl(url);
+                    cat_arr = new JSONArray(cat_json.get("temp").toString());
+                    for (int i = 0; i < cat_arr.length(); i++) {
+                        JSONObject temp = (JSONObject) cat_arr.get(i);
+                        scat_list.add(temp.get("cat_name").toString());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-                    for (String text : scat_list) {
-                        Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
-                        chip.setText(text);
+                Toast.makeText(getApplicationContext(), pre_art.getText(), Toast.LENGTH_SHORT).show();
+                inflater = LayoutInflater.from(pre_cat.this);
+
+                for (String text : scat_list) {
+                    Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
+                    chip.setText(text);
+
+                    if (scat_list_save.contains(text)) {
+                        chip.setChecked(true);
+                    }
                        /* chip.setOnCloseIconClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 chipGroup.removeView(v);
                             }
                         });*/
-                        chipGroup.addView(chip);
-                    }
-                } else {
-                    chipGroup.removeAllViews();
-                    scat_list.clear();
+                    chipGroup.addView(chip);
                 }
                 break;
 
@@ -203,16 +231,23 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
 
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -241,16 +276,24 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
 
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -279,16 +322,23 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
 
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -316,15 +366,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -352,15 +409,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -388,15 +452,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -424,15 +495,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -460,15 +538,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -496,15 +581,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -532,15 +624,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -568,15 +667,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
@@ -604,15 +710,22 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     for (String text : scat_list) {
                         Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
                         chip.setText(text);
-                        /*chip.setOnCloseIconClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                chipGroup.removeView(v);
-                            }
-                        });*/
+                        if (scat_list_save.contains(text)) {
+                            chip.setChecked(true);
+                        }
                         chipGroup.addView(chip);
                     }
                 } else {
+                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        boolean foo = scat_list_save.contains(chip.getText().toString());
+                        if (chip.isChecked() && !foo) {
+                            scat_list_save.add(chip.getText().toString());
+
+                        } else if (!chip.isChecked() && foo) {
+                            scat_list_save.remove(chip.getText().toString());
+                        }
+                    }
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }

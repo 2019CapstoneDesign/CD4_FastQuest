@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.tt.model.Data;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
@@ -20,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,9 +76,10 @@ public class review extends AppCompatActivity {
     private void init() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
-
+        //recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         adapter = new RecyclerAdapter();
         recyclerView.setAdapter(adapter);
     }
@@ -88,7 +89,7 @@ public class review extends AppCompatActivity {
 
         //그냥 이미지 샘플 입력용
 
-        List<Integer> listResId = Arrays.asList(
+        /*List<Integer> listResId = Arrays.asList(
                 R.drawable.pre_art,
                 R.drawable.pre_book,
                 R.drawable.pre_camera,
@@ -105,7 +106,7 @@ public class review extends AppCompatActivity {
                 R.drawable.pre_movie,
                 R.drawable.pre_music,
                 R.drawable.pre_book
-        );
+        );*/
 
         url = "http://52.79.125.108/api/feed";
         try {
@@ -117,9 +118,9 @@ public class review extends AppCompatActivity {
                 data.setTitle(temp.get("title").toString());
                 data.setContent(temp.get("content").toString());
                 data.setAuthor(temp.get("author").toString());
-               // data.setResId(temp.get("image");
-                data.setResId(listResId.get(i));
-                data.setUrlImage("http://52.79.125.108/"+temp.get("image").toString());
+                // data.setResId(temp.get("image");
+                //data.setResId(listResId.get(i));
+                data.setUrlImage(temp.get("image").toString());
                 adapter.addItem(data);
             }
         } catch (IOException e) {
@@ -127,7 +128,6 @@ public class review extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //Toast.makeText(getApplicationContext(), cat_json.toString(), Toast.LENGTH_SHORT).show();
 
         adapter.notifyDataSetChanged();
     }

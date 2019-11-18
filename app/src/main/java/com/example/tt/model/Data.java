@@ -1,4 +1,4 @@
-package com.example.tt;
+package com.example.tt.model;
 
 public class Data {
 

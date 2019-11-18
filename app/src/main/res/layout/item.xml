@@ -66,9 +66,10 @@
         <TextView
             android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/thumb"
             android:layout_marginTop="20dp"
+            android:layout_marginRight="35dp"
             android:textSize="17sp" />
 
         <com.like.LikeButton
@@ -83,8 +84,8 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:animateLayoutChanges="true"
         android:background="#CECECE"

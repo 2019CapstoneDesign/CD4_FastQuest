@@ -10,6 +10,16 @@ public class category {
     public float sociality_rate;
     public float score;
 
+    public String getCat_all() {
+        return cat_all;
+    }
+
+    public void setCat_all(String cat_all) {
+        this.cat_all = cat_all;
+    }
+
+    public String cat_all;
+
     public category() {
 
     }

@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.appcompat.app.AlertDialog;
@@ -23,10 +22,7 @@ import org.json.JSONObject;
 
 public class Register_Activity extends AppCompatActivity {
 
-    private String userID;
-    private String userPassword;
     private String userGender;
-    private String userEmail;
     private AlertDialog dialog;
     private boolean validate = false;
 
@@ -37,6 +33,7 @@ public class Register_Activity extends AppCompatActivity {
 
         final EditText idText = (EditText)findViewById(R.id.idText);
         final EditText passwordText = (EditText)findViewById(R.id.passwordText);
+        final EditText passwordConfirm = (EditText)findViewById(R.id.passwordText2);
         final EditText age = (EditText)findViewById(R.id.age);
         final EditText emailText = (EditText)findViewById(R.id.emailText);
 
@@ -82,12 +79,7 @@ public class Register_Activity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         try{
-                            Toast.makeText(Register_Activity.this, response, Toast.LENGTH_LONG).show();
-                            Log.d("tag", "제이슨 되나?");
-                            JSONObject jsonResponse = new JSONObject(response);
-                            Log.d("tag", "이게 되네...");
-                            boolean success = jsonResponse.getBoolean("success");
-                            if(success){//사용할 수 있는 아이디라면
+                            if(!response.contains("\"" + idText.getText().toString() + "\"")){//사용할 수 있는 아이디라면
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
                                 dialog = builder.setMessage("you can use ID")
                                         .setPositiveButton("OK", null)
@@ -128,18 +120,18 @@ public class Register_Activity extends AppCompatActivity {
             public void onClick(View view) {
                 String userID = idText.getText().toString();
                 String userPassword = passwordText.getText().toString();
+                String userPasswordConfirm = passwordConfirm.getText().toString();
                 String userage = age.getText().toString();
                 String userEmail = emailText.getText().toString();
 
-                //ID 중복체크를 했는지 확인함
-                /*if(!validate){
+                if(!userPassword.equals(userPasswordConfirm)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
-                    dialog = builder.setMessage("First Check ID plz")
+                    dialog = builder.setMessage("confirm Password")
                             .setNegativeButton("OK", null)
                             .create();
                     dialog.show();
                     return;
-                }*/
+                }
 
                 //한칸이라도 빠뜨렸을 경우
                 if(userID.equals("")||userPassword.equals("")||userage.equals("")||userEmail.equals("")||userGender.equals("")){
@@ -158,7 +150,17 @@ public class Register_Activity extends AppCompatActivity {
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
                             try {
-                                String success = jsonResponse.get("key").toString();
+                                String success = jsonResponse.get("token").toString();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
+                                dialog = builder.setMessage("Register Your ID")
+                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                            }
+                                        })
+                                        .create();
+                                dialog.show();
                             } catch (Exception e) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
                                 dialog = builder.setMessage("Register fail")
@@ -166,16 +168,7 @@ public class Register_Activity extends AppCompatActivity {
                                         .create();
                                 dialog.show();
                             }
-                            AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);
-                            dialog = builder.setMessage("Register Your ID")
-                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            finish();
-                                        }
-                                    })
-                                    .create();
-                            dialog.show();
+
                         }
                         catch(Exception e){
                             e.printStackTrace();

@@ -9,11 +9,11 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReviewRequest extends JsonObjectRequest {
-    final static private String URL = "http://52.79.125.108/api/feed/";
+public class moimRequest extends JsonObjectRequest {
+    final static private String URL = "http://52.79.125.108/api/assemble/";
     private HashMap<String, String> params;
 
-    public ReviewRequest(int method, String url, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+    public moimRequest(int method, String url, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
         super(method, url, jsonRequest, listener, errorListener);
     }
 

@@ -89,7 +89,7 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
             this.position = position;
 
             textView1.setText(data.getTitle());
-            textView2.setText(data.getWriter());
+            textView2.setText(data.getAuthor());
             //textView3.setText(data.getContent());
             if(data.getUrlImage()!= "null"){
                 Picasso.get().load(data.getUrlImage()).into(imageView1);
@@ -112,7 +112,7 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
             Intent intent = new Intent(context,moim_detail.class);
             intent.putExtra("image",data.getUrlImage());
             //Toast.makeText(context, data.getUrlImage() + " 이미지 입니다.", Toast.LENGTH_SHORT).show();
-            intent.putExtra("author",data.getWriter());
+            intent.putExtra("author",data.getAuthor());
             //Toast.makeText(context, data.getWriter() + " 작성자 입니다.", Toast.LENGTH_SHORT).show();
             intent.putExtra("title",data.getTitle());
             //Toast.makeText(context, data.getTitle() + " 제목 입니다.", Toast.LENGTH_SHORT).show();
@@ -126,7 +126,7 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
                     Toast.makeText(context, data.getTitle(), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.textView2:
-                    Toast.makeText(context, data.getWriter(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, data.getAuthor(), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.imageView1:
                     Toast.makeText(context, data.getUrlImage() + " 이미지 입니다.", Toast.LENGTH_SHORT).show();

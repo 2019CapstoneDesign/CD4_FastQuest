@@ -10,9 +10,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.tt.data.UserData;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 
 
 public class pre_cat extends AppCompatActivity implements View.OnClickListener {
-
     ToggleButton pre_art;
     ToggleButton pre_book;
     ToggleButton pre_camera;
@@ -43,18 +40,15 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
     ChipGroup chipGroup;
     Button saveButton;
     ImageButton backButton;
-
-    JSONObject cat_json = null;
-    JSONArray cat_arr = null;
-    final url_json read = new url_json();
+    static ArrayList<Boolean> BoolList =  new ArrayList<Boolean>();
     String url;
+    private JSONObject cat_json = null;
+    private JSONArray cat_arr = null;
+    final url_json read = new url_json();
 
-    LayoutInflater inflater;
-
-
-    static ArrayList<Boolean> BoolList = new ArrayList<Boolean>();
     ArrayList<String> scat_list = new ArrayList<String>();
     ArrayList<String> scat_list_save = new ArrayList<String>();
+
 
 
     @Override
@@ -75,8 +69,10 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
         pre_food.setOnClickListener(this);
         pre_game = findViewById(R.id.pre_Game);
         pre_game.setOnClickListener(this);
-        pre_language = findViewById(R.id.pre_Language);
+        pre_language =findViewById(R.id.pre_Language);
         pre_language.setOnClickListener(this);
+        pre_book.setOnClickListener(this);
+        pre_book.setOnClickListener(this);
         pre_meet = findViewById(R.id.pre_Meet);
         pre_meet.setOnClickListener(this);
         pre_movie = findViewById(R.id.pre_Movie);
@@ -89,6 +85,7 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
         pre_travel.setOnClickListener(this);
         pre_volunteer = findViewById(R.id.pre_Volunteer);
         pre_volunteer.setOnClickListener(this);
+
         saveButton = findViewById(R.id.saveButton);
 
         UserData userdata = new UserData();
@@ -99,26 +96,25 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 finish();
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                startActivity(new Intent(getApplicationContext(),MainActivity.class));
             }
         });
 
         chipGroup = findViewById(R.id.chip_group);
-
         scat_list_save.add("tmp");
 
-
     }
-
-    public void OnClickHandler(View view) {
+    public void OnClickHandler(View view)
+    {
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("수정사항").setMessage("저장하시겠습니까?");
 
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener(){
             @Override
-            public void onClick(DialogInterface dialog, int id) {
+            public void onClick(DialogInterface dialog, int id)
+            {
 
 
                 //DELETE and For-loop PUT
@@ -140,13 +136,18 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                 }
 
                 // startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                userdata.setBoolList(BoolList);
+
+                Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT).show();
+               // startActivity(new Intent(getApplicationContext(),MainActivity.class));
 
 
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
             @Override
-            public void onClick(DialogInterface dialog, int id) {
+            public void onClick(DialogInterface dialog, int id)
+            {
                 Toast.makeText(getApplicationContext(), "Cancel", Toast.LENGTH_SHORT).show();
             }
         });
@@ -157,10 +158,9 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-
-
-        switch (v.getId()) {
+        switch (v.getId()){
             case R.id.pre_Art:
+
                 chipGroup.removeAllViews();
                 scat_list.clear();
                 for (int i = 0; i < chipGroup.getChildCount(); i++) {
@@ -189,7 +189,7 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                 }
 
                 Toast.makeText(getApplicationContext(), pre_art.getText(), Toast.LENGTH_SHORT).show();
-                inflater = LayoutInflater.from(pre_cat.this);
+                LayoutInflater inflater = LayoutInflater.from(pre_cat.this);
 
                 for (String text : scat_list) {
                     Chip chip = (Chip) inflater.inflate(R.layout.chip_item, null, false);
@@ -206,9 +206,12 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                         });*/
                     chipGroup.addView(chip);
                 }
-                break;
 
+                Toast.makeText(getApplicationContext(), "1", Toast.LENGTH_SHORT).show();
+
+                break;
             case R.id.pre_Book:
+
                 if (pre_book.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -251,9 +254,11 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
+                Toast.makeText(getApplicationContext(), "2", Toast.LENGTH_SHORT).show();
 
+                break;
             case R.id.pre_Camera:
+
                 if (pre_camera.isChecked()) {
                     chipGroup.removeAllViews();
                     scat_list.clear();
@@ -297,9 +302,11 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
+                Toast.makeText(getApplicationContext(), "3", Toast.LENGTH_SHORT).show();
 
+                break;
             case R.id.pre_Dance:
+
                 if (pre_dance.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -342,9 +349,12 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+                Toast.makeText(getApplicationContext(), "4", Toast.LENGTH_SHORT).show();
+
+                break;
             case R.id.pre_Food:
+
                 if (pre_food.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -385,9 +395,11 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
+                Toast.makeText(getApplicationContext(), "5", Toast.LENGTH_SHORT).show();
 
+                break;
             case R.id.pre_Game:
+
                 if (pre_game.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -428,8 +440,10 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+                Toast.makeText(getApplicationContext(), "6", Toast.LENGTH_SHORT).show();
+
+                break;
             case R.id.pre_Language:
                 if (pre_language.isChecked()) {
                     scat_list.clear();
@@ -471,9 +485,12 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+                Toast.makeText(getApplicationContext(), "7", Toast.LENGTH_SHORT).show();
+
+                break;
             case R.id.pre_Meet:
+
                 if (pre_meet.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -514,8 +531,9 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+
+                break;
             case R.id.pre_Movie:
                 if (pre_movie.isChecked()) {
                     scat_list.clear();
@@ -557,8 +575,9 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+
+                break;
             case R.id.pre_Music:
                 if (pre_music.isChecked()) {
                     scat_list.clear();
@@ -600,9 +619,10 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+                break;
             case R.id.pre_Sports:
+
                 if (pre_sports.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -643,9 +663,10 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+                break;
             case R.id.pre_Travel:
+
                 if (pre_travel.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -686,9 +707,10 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
-                break;
 
+                break;
             case R.id.pre_Volunteer:
+
                 if (pre_volunteer.isChecked()) {
                     scat_list.clear();
                     chipGroup.removeAllViews();
@@ -729,7 +751,9 @@ public class pre_cat extends AppCompatActivity implements View.OnClickListener {
                     chipGroup.removeAllViews();
                     scat_list.clear();
                 }
+
                 break;
+
         }
     }
 }

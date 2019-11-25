@@ -6,10 +6,18 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -19,37 +27,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".User_survey"></activity>
-        <activity android:name=".chat" />
-        <activity android:name=".moim_detail" />
-        <activity android:name=".inProgress" />
-        <activity android:name=".userEvaluation" />
-
-        <meta-data
-            android:name="com.google.android.actions"
-            android:resource="@xml/network_security_config" />
 
         <activity android:name=".card_selected" />
         <activity android:name=".info" />
         <activity android:name=".CardInfo" />
         <activity android:name=".map" />
         <activity android:name=".data.User" />
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:label="@string/title_activity_login" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".start">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="" />
-
+        <activity android:name=".User_survey"/>
+        <activity android:name=".chat" />
+        <activity android:name=".moim_detail" />
+        <activity android:name=".inProgress" />
+        <activity android:name=".userEvaluation" />
         <activity android:name=".moim" />
         <activity android:name=".review_check" />
         <activity android:name=".review" />
@@ -58,6 +47,54 @@
         <activity android:name=".Register_Activity" />
         <activity android:name=".Login" />
         <activity android:name=".createreview" />
+        <activity android:name=".moim_card_selected" />
+
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:label="@string/title_activity_login" />
+
+        <activity android:name=".start">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="" />
+
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/network_security_config" />
+
+        <service
+            android:name="BackgroundService"
+            android:enabled="true"></service>
+
+        <receiver
+            android:name=".RestarterBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="RestartService" />
+            </intent-filter>
+        </receiver>
+
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.tt"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_path" />
+        </provider>
+
+
     </application>
 
 </manifest>
+

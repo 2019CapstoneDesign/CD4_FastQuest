@@ -83,7 +83,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
             this.position = position;
 
             textView1.setText(data.getTitle());
-            textView2.setText(data.getWriter());
+            textView2.setText(data.getAuthor());
             textView3.setText(data.getContent());
             imageView1.setImageResource(data.getResId());
             //imageView2.setImageResource(data.getResId());

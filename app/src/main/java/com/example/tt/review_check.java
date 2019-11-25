@@ -20,14 +20,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class review_check extends AppCompatActivity {
     ImageButton backButton;
-
+    RecyclerAdapter adapter;
+    String url;
     private JSONObject cat_json = null;
-    private JSONArray cat_arr = null;
+    private  JSONArray cat_arr = null;
     final url_json read = new url_json();
-    private String url;
-    private RecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +41,7 @@ public class review_check extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
             }
         });
+
         init();
         getData();
     }
@@ -93,7 +94,7 @@ public class review_check extends AppCompatActivity {
                 data.setContent(temp.get("content").toString());
                 data.setAuthor(temp.get("author").toString());
                 // data.setResId(temp.get("image");
-               // data.setResId(listResId.get(i));
+                // data.setResId(listResId.get(i));
                 data.setUrlImage("http://52.79.125.108/" + temp.get("image").toString());
                 adapter.addItem(data);
             }
@@ -105,7 +106,7 @@ public class review_check extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         adapter.notifyDataSetChanged();
+
     }
 }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,10 +28,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class card_selected extends AppCompatActivity {
+public class moim_card_selected extends AppCompatActivity {
     Button reloadButton;
     Button start;
     TextView act_title;
@@ -39,6 +43,7 @@ public class card_selected extends AppCompatActivity {
     private FusedLocationProviderClient mfusedLocationProviderClient;
     LatLng correct_cur_loc;
     User user;
+    TimePicker timePicker;
 
     static SharedPreferences save;
     static SharedPreferences.Editor editor;
@@ -48,47 +53,33 @@ public class card_selected extends AppCompatActivity {
 
     int reload_num;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         user  = User.getInstance();
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_moim_card_selected);
         final Intent intent = getIntent();
         reload_num = intent.getExtras().getInt("reload");
         mfusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         String cat_name = intent.getExtras().getString("cat_name");
-
+        JSONObject moim_act = null;
         save = getSharedPreferences("mysave", MODE_PRIVATE);
         editor = save.edit();
-
-        String url = "http://52.79.125.108/api/activity/" + cat_name;
-        setContentView(R.layout.activity_card_selected);
-        Activity play_activity = new Activity("0", "null","null","null",
-                'n','n', "null", 0, 0, 0);
-
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
-            return;
-        }
-        mfusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if(location != null) {
-                    correct_cur_loc = new LatLng(location.getLatitude(),location.getLongitude());
-                    user.setUser_location(correct_cur_loc);
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "권한 체크 거부 됌", Toast.LENGTH_SHORT).show();
-                    LatLng loc_temp = new LatLng(0,0);
-                    user.setUser_location(loc_temp);
-                }
-            }
-        });
+        Activity play_activity = new Activity();
         try {
-            play_activity = set_info(url);
+            moim_act = new JSONObject(intent.getExtras().getString("cat_all"));
+            play_activity = new Activity();
+            play_activity.title = moim_act.get("title").toString();
+            play_activity.content = moim_act.get("content").toString();
+            String[] temp_array = moim_act.get("time").toString().split("T");
+            String moim_act_time_str = temp_array[0] + "-" + temp_array[1];
+            Date moim_act_time = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").parse(moim_act_time_str);;
+            play_activity.setDate(moim_act_time);
             user.setUser_act(play_activity);
-            editor.putString("latitude", String.valueOf(play_activity.latitude));
-            editor.putString("longitude", String.valueOf(play_activity.longitude));
-            editor.putString("date","");
+            editor.putString("latitude", "");
+            editor.putString("longitude", "");
+            editor.putString("date", moim_act_time_str);
             //editor.putString("date");
             editor.apply();
             mBackgroundService = new BackgroundService();
@@ -96,18 +87,21 @@ public class card_selected extends AppCompatActivity {
             startService(mBackgroundServiceIntent);
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         final Intent actintent = new Intent(getApplicationContext(), createreview.class);
         actintent.putExtra("act_id", play_activity.act_id);
 
-        act_title = (TextView)findViewById(R.id.Title);
+        act_title = (TextView)findViewById(R.id.Title2);
         act_title.setText(play_activity.title);
-        act_detail = (TextView)findViewById(R.id.Detail);
+        act_detail = (TextView)findViewById(R.id.Detail2);
         act_detail.setText(play_activity.content);
+        timePicker = (TimePicker)findViewById(R.id.Timepick);
+        timePicker.setHour(11);
+        timePicker.setMinute(30);
 
-        reloadButton = (Button)findViewById(R.id.Reload);
+        reloadButton = (Button)findViewById(R.id.Reload2);
         reloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,7 +112,7 @@ public class card_selected extends AppCompatActivity {
                     startActivity(reintent);
                 }
                 else{
-                    Toast.makeText(card_selected.this, "reload 횟수가 끝났습니다.", Toast.LENGTH_LONG);
+                    Toast.makeText(moim_card_selected.this, "reload 횟수가 끝났습니다.", Toast.LENGTH_LONG);
                 }
             }
         });
@@ -130,13 +124,13 @@ public class card_selected extends AppCompatActivity {
         mintent.putExtra("longitude",play_activity.longitude);
 
 
-        start = (Button)findViewById(R.id.Start);
+        start = (Button)findViewById(R.id.Start2);
         final Activity finalPlay_activity = play_activity;
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                mfusedLocationProviderClient.getLastLocation().addOnSuccessListener(card_selected.this, new OnSuccessListener<Location>() {
+                mfusedLocationProviderClient.getLastLocation().addOnSuccessListener(moim_card_selected.this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
                         if(location != null) {
@@ -147,7 +141,7 @@ public class card_selected extends AppCompatActivity {
                                 startActivity(actintent);
                             }
                             else {
-                                Toast.makeText(card_selected.this, "활동 장소에 도착한 후 눌러주세요", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(moim_card_selected.this, "활동 장소에 도착한 후 눌러주세요", Toast.LENGTH_SHORT).show();
                             }
                         }
                         else{

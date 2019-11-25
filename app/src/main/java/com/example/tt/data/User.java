@@ -1,5 +1,7 @@
 package com.example.tt.data;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.model.LatLng;
 
 public class User {
@@ -7,6 +9,36 @@ public class User {
     private String user_id;
     private LatLng user_location;
     private String email;
+
+    public boolean getismoim() {
+        return ismoim;
+    }
+
+    public void setIsmoim(boolean ismoim) {
+        this.ismoim = ismoim;
+    }
+
+    boolean ismoim = false;
+
+    public Activity getUser_act() {
+        return user_act;
+    }
+
+    public void setUser_act(Activity user_act) {
+        this.user_act = user_act;
+    }
+
+    private Activity user_act;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    private String username;
     private String nickname;
     public int score;
     private float activity;
@@ -15,6 +47,17 @@ public class User {
     private int created;
     private int outside;
     public int age;
+
+    public Bitmap getImage() {
+        return image;
+    }
+
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
+
+    private Bitmap image;
+
 
     private User() {
     }

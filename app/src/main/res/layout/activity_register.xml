@@ -81,13 +81,38 @@
                 android:textColorHint="#ffffff" />
 
             <EditText
+                android:id="@+id/passwordText2"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="#deb881"
+                android:hint="CONFIRM PASSWORD"
+                android:inputType="textPassword"
+                android:padding="10dp"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+
+            <EditText
+                android:id="@+id/nickname"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="#deb881"
+                android:hint="NICKNAME"
+                android:padding="10dp"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+
+            <EditText
                 android:id="@+id/age"
                 android:layout_width="280dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:background="#deb881"
-                android:hint="AGE"
+                android:hint="Date of Birth"
                 android:padding="10dp"
                 android:textColor="#ffffff"
                 android:textColorHint="#ffffff" />

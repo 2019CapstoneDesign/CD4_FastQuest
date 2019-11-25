@@ -3,6 +3,8 @@ package com.example.tt.data;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class Activity {
     public String act_id;
     public String title;
@@ -14,6 +16,16 @@ public class Activity {
     public double latitude;
     public double longitude;
     public float score;
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public Date date;
 
     public Activity() {
 
@@ -35,12 +47,19 @@ public class Activity {
     public Activity(JSONObject jsonActivity) throws JSONException {
         this.act_id = jsonActivity.get("act_id").toString();
         this.title = jsonActivity.get("title").toString();
-        this.category = jsonActivity.get("category_id").toString();
+        this.category = jsonActivity.get("category").toString();
         this.content = jsonActivity.get("content").toString();
         this.longterm = jsonActivity.get("longterm").toString().charAt(0);
         this.outside = jsonActivity.get("outside").toString().charAt(0);
         this.address = jsonActivity.get("address").toString();
-        this.latitude = Double.parseDouble(jsonActivity.get("latitude").toString());
-        this.longitude = Double.parseDouble(jsonActivity.get("longitude").toString());
+        String temp_lat = jsonActivity.get("latitude").toString();
+        String temp_long = jsonActivity.get("longitude").toString();
+        if (temp_lat == "null" || temp_long == "null") {
+            this.latitude = 0;
+            this.longitude = 0;
+        } else {
+            this.latitude = Double.parseDouble(jsonActivity.get("latitude").toString());
+            this.longitude = Double.parseDouble(jsonActivity.get("longitude").toString());
+        }
     }
 }

@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".moim_detail"></activity>
+        <activity android:name=".User_survey"></activity>
+        <activity android:name=".chat" />
+        <activity android:name=".moim_detail" />
         <activity android:name=".inProgress" />
         <activity android:name=".userEvaluation" />
 

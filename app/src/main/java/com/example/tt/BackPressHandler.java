@@ -1,6 +1,7 @@
 package com.example.tt;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ public class BackPressHandler {
         }
         if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
             ActivityCompat.finishAffinity(activity);
+            activity.startActivity(new Intent(activity, MainActivity.class));
             toast.cancel();
         }
 
@@ -53,6 +55,7 @@ public class BackPressHandler {
         }
         if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
             ActivityCompat.finishAffinity(activity);
+            activity.startActivity(new Intent(activity, MainActivity.class));
             toast.cancel();
         }
     }
@@ -69,6 +72,7 @@ public class BackPressHandler {
         }
         if (System.currentTimeMillis() <= backKeyPressedTime + time) {
             ActivityCompat.finishAffinity(activity);
+            activity.startActivity(new Intent(activity, MainActivity.class));
             toast.cancel();
         }
     }
@@ -87,6 +91,7 @@ public class BackPressHandler {
         }
         if (System.currentTimeMillis() <= backKeyPressedTime + time) {
             ActivityCompat.finishAffinity(activity);
+            activity.startActivity(new Intent(activity, MainActivity.class));
             toast.cancel();
         }
     }

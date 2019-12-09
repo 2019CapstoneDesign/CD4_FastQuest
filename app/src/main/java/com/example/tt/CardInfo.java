@@ -62,7 +62,7 @@ public class CardInfo extends AppCompatActivity {
         value = new Vector<>();
         lack = false;
         do {
-            check_lack(url);
+            url = check_lack(url);
             recommend_category(url);
         }while(value.size() != 5);
 

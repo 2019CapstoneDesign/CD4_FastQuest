@@ -79,7 +79,6 @@ import retrofit2.Callback;
 public class moim extends AppCompatActivity {
 
     private PopupWindow mPopupWindow;
-    ImageButton profileButton;
     ImageButton backButton;
     ImageButton moimcreateButton;
     Spinner spinner;
@@ -103,23 +102,7 @@ public class moim extends AppCompatActivity {
     User user;
 
     String upload_moim_id;
-
-    private final int CAMERA_CODE = 0;
-    private final int GALLERY_CODE = 1;
-
-    DialogInterface.OnClickListener camerListener;
-    DialogInterface.OnClickListener albumListener;
-    DialogInterface.OnClickListener cancleListener;
-
-    Bitmap photo;
-
-    private Uri photoUri;
-    private String currentPhotoPath;//실제 사진 파일 경로
-    String mImageCaptureName;//이미지 이름
-
-    String imagePath;
     File image_file;
-
     FileService fileService;
 
     @Override
@@ -240,38 +223,9 @@ public class moim extends AppCompatActivity {
                     add_photo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            camerListener = new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                                        ActivityCompat.requestPermissions(moim.this, new String[]{Manifest.permission.CAMERA}, 1003);
-                                    } else {
-                                        if (ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                                                && ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                            ActivityCompat.requestPermissions(moim.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1002);
-                                        }
-                                    }
-                                    takePhoto();
-                                }
-                            };
-                            albumListener = new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                                            && ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                        ActivityCompat.requestPermissions(moim.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1002);
-                                    }
-                                    selectGallery();
-                                }
-                            };
-                            cancleListener = new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            };
-
-                            new AlertDialog.Builder(moim.this).setTitle("업로드할 이미지 선택").setPositiveButton("앨범 선택", albumListener).setNeutralButton("사진 촬영", camerListener).setNegativeButton("취소", cancleListener).show();
+                            Add_picture moim_add_picture = new Add_picture(moim.this, create_moim_photo);
+                            moim_add_picture.add_photo();
+                            moim_add_picture.get_image_file();
                         }
                     });
                     Button ok = popupView.findViewById(R.id.Ok);
@@ -363,19 +317,7 @@ public class moim extends AppCompatActivity {
                     });
 
                     List<String> spinnerArray = new ArrayList<>();
-                    spinnerArray.add("공예/만들기");
-                    spinnerArray.add("인문학/책/글");
-                    spinnerArray.add("사진/영상");
-                    spinnerArray.add("댄스/무용");
-                    spinnerArray.add("요리/제조");
-                    spinnerArray.add("게임/오락");
-                    spinnerArray.add("외국/언어");
-                    spinnerArray.add("사교/인맥");
-                    spinnerArray.add("문화/공연/축제");
-                    spinnerArray.add("음악/악기");
-                    spinnerArray.add("운동/스포츠");
-                    spinnerArray.add("여행/아웃도어");
-                    spinnerArray.add("봉사활동");
+                    spinnerArray = set_spinnerArray(spinnerArray);
 
                     spinner2 = popupView.findViewById(R.id.spinner);
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(moim.this, android.R.layout
@@ -395,35 +337,7 @@ public class moim extends AppCompatActivity {
                     ok.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-
-                            if (create_challenge_activity.getText().toString().equals("")) {
-                                new AlertDialog.Builder(moim.this).setTitle("카테고리를 입력해주세요").setPositiveButton("OK", null).show();
-                                return;
-                            }
-                            if (create_challenge_content.getText().toString().equals("")) {
-                                new AlertDialog.Builder(moim.this).setTitle("내용을 입력해주세요").setPositiveButton("OK", null).show();
-                                return;
-                            }
-
-                            String create_challenge_url = "http://52.79.125.108/api/challenge/";
-                            JSONObject jsonObject = new JSONObject();
-                            user = User.getInstance();
-                            try {
-                                jsonObject.put("act_name", create_challenge_activity.getText());
-                                jsonObject.put("content", create_challenge_content.getText());
-                                //jsonObject.put("author", user.getUsername());
-                                jsonObject.put("cat_name", spinner2.getSelectedItem().toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            ChallengeRequest mRequest2 = new ChallengeRequest(Request.Method.POST, create_challenge_url, jsonObject, null, null);
-                            RequestQueue challenge_request = Volley.newRequestQueue(moim.this);
-                            challenge_request.add(mRequest2);
-                            mPopupWindow.dismiss();
-
-                            Toast.makeText(getApplicationContext(), "등록 완료", Toast.LENGTH_SHORT).show();
-
+                            set_challenge_info();
                         }
                     });
                 }
@@ -442,173 +356,51 @@ public class moim extends AppCompatActivity {
         return this.num;
     }
 
-    public void add_review(View view) throws JSONException {
-
-
+    public List<String> set_spinnerArray(List<String> spinnerArray) {
+        spinnerArray.add("공예/만들기");
+        spinnerArray.add("인문학/책/글");
+        spinnerArray.add("사진/영상");
+        spinnerArray.add("댄스/무용");
+        spinnerArray.add("요리/제조");
+        spinnerArray.add("게임/오락");
+        spinnerArray.add("외국/언어");
+        spinnerArray.add("사교/인맥");
+        spinnerArray.add("문화/공연/축제");
+        spinnerArray.add("음악/악기");
+        spinnerArray.add("운동/스포츠");
+        spinnerArray.add("여행/아웃도어");
+        spinnerArray.add("봉사활동");
+        return spinnerArray;
     }
 
-
-    public void takePhoto() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                File photoFile = null;
-                try {
-                    photoFile = createImageFile();
-                    image_file = photoFile;
-                } catch (IOException ex) {
-
-                }
-                if (photoFile != null) {
-                    photoUri = FileProvider.getUriForFile(this, getPackageName(), photoFile);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                    startActivityForResult(intent, CAMERA_CODE);
-                }
-            }
+    private void set_challenge_info(){
+        if (create_challenge_activity.getText().toString().equals("")) {
+            new AlertDialog.Builder(moim.this).setTitle("카테고리를 입력해주세요").setPositiveButton("OK", null).show();
+            return;
         }
-    }
-
-    private File createImageFile() throws IOException {
-        File dir = new File(Environment.getExternalStorageDirectory() + "/path/");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        mImageCaptureName = timeStamp + ".jpg";
-        File storageDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile()
-                + "/path/" + mImageCaptureName);
-        currentPhotoPath = storageDir.getAbsolutePath();
-        return storageDir;
-    }
-
-    private void getPictureForPhoto() {
-        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(currentPhotoPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int exifOrientation;
-        int exifDegree;
-        if (exif != null) {
-            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            exifDegree = exifOrientationToDegrees(exifOrientation);
-        } else {
-            exifDegree = 0;
-        }
-        create_moim_photo.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기 }
-        photo = bitmap;
-    }
-
-
-    private void selectGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
-        startActivityForResult(intent, GALLERY_CODE);
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode != RESULT_OK) {
+        if (create_challenge_content.getText().toString().equals("")) {
+            new AlertDialog.Builder(moim.this).setTitle("내용을 입력해주세요").setPositiveButton("OK", null).show();
             return;
         }
 
-        switch (requestCode) {
-            case GALLERY_CODE:
-                sendPicture(data.getData());
-                break;
-            case CAMERA_CODE:
-                getPictureForPhoto();
-                break;
-
-            default:
-                break;
-
-        }
-    }
-
-    private void sendPicture(Uri imgUri) {
-        imagePath = getRealPathFromURI(imgUri); // path 경로
-        ExifInterface exif = null;
+        String create_challenge_url = "http://52.79.125.108/api/challenge/";
+        JSONObject jsonObject = new JSONObject();
+        user = User.getInstance();
         try {
-            exif = new ExifInterface(imagePath);
-        } catch (IOException e) {
+            jsonObject.put("act_name", create_challenge_activity.getText());
+            jsonObject.put("content", create_challenge_content.getText());
+            //jsonObject.put("author", user.getUsername());
+            jsonObject.put("cat_name", spinner2.getSelectedItem().toString());
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        int exifDegree = exifOrientationToDegrees(exifOrientation);
 
-        File tempfile = new File(imagePath);
-        image_file = tempfile;
+        ChallengeRequest mRequest2 = new ChallengeRequest(Request.Method.POST, create_challenge_url, jsonObject, null, null);
+        RequestQueue challenge_request = Volley.newRequestQueue(moim.this);
+        challenge_request.add(mRequest2);
+        mPopupWindow.dismiss();
 
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);//경로를 통해 비트맵으로 전환
-        create_moim_photo.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
-        photo = bitmap;
-    }
-
-    private int exifOrientationToDegrees(int exifOrientation) {
-        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            return 90;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            return 180;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            return 270;
-        }
-        return 0;
-    }
-
-    private Bitmap rotate(Bitmap src, float degree) { // Matrix 객체 생성
-        Matrix matrix = new Matrix(); // 회전 각도 셋팅
-        matrix.postRotate(degree); // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
-        return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
-    }
-
-    private String getRealPathFromURI(Uri contentUri) {
-        int column_index = 0;
-        String[] proj = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
-        if (cursor.moveToFirst()) {
-            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        }
-        return cursor.getString(column_index);
-    }
-
-
-    public void add_image(View view) {
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1002:
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
-            case 1003:
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "카메라 권한 체크 거부", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                            && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }
-                break;
-        }
+        Toast.makeText(getApplicationContext(), "등록 완료", Toast.LENGTH_SHORT).show();
     }
 
 }

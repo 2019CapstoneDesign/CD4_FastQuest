@@ -1,4 +1,14 @@
 package com.example.tt;
 
-public class simpleWorker {
+import androidx.annotation.NonNull;
+import androidx.work.Worker;
+
+class simpleWorker extends Worker {
+
+    @NonNull
+    @Override
+    public WorkerResult doWork() {
+        return null;
+    }
+
 }

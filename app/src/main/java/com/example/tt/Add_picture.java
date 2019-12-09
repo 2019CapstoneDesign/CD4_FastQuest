@@ -47,7 +47,11 @@ public class Add_picture extends Activity{
         this.image = image;
     }
 
-    public void takePhoto() {
+    public File get_image_file() {
+        return image_file;
+    }
+
+    private void takePhoto() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -60,9 +64,9 @@ public class Add_picture extends Activity{
 
                 }
                 if (photoFile != null) {
-                    photoUri = FileProvider.getUriForFile(this.activity, this.activity.getPackageName(), photoFile);
+                    photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(), photoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                    this.activity.startActivityForResult(intent, CAMERA_CODE);
+                    activity.startActivityForResult(intent, CAMERA_CODE);
                 }
             }
         }
@@ -97,7 +101,7 @@ public class Add_picture extends Activity{
         } else {
             exifDegree = 0;
         }
-        this.image.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기 }
+        image.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기 }
     }
 
 
@@ -106,7 +110,7 @@ public class Add_picture extends Activity{
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
-        this.activity.startActivityForResult(intent, GALLERY_CODE);
+        activity.startActivityForResult(intent, GALLERY_CODE);
     }
 
 
@@ -214,7 +218,7 @@ public class Add_picture extends Activity{
             }
         };
 
-        new AlertDialog.Builder(this).setTitle("업로드할 이미지 선택").setPositiveButton("앨범 선택", albumListener).setNeutralButton("사진 촬영", camerListener).setNegativeButton("취소", cancleListener).show();
+        new AlertDialog.Builder(activity).setTitle("업로드할 이미지 선택").setPositiveButton("앨범 선택", albumListener).setNeutralButton("사진 촬영", camerListener).setNegativeButton("취소", cancleListener).show();
     }
 
     @Override
@@ -222,20 +226,20 @@ public class Add_picture extends Activity{
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 1002:
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(activity, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
             case 1003:
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "카메라 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(activity, "카메라 권한 체크 거부", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                            && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                    if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(activity, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 }

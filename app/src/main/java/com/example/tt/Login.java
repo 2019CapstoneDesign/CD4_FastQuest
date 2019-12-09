@@ -51,30 +51,11 @@ public class Login extends AppCompatActivity {
         password = (EditText)findViewById(R.id.password);
         login= (Button)findViewById(R.id.login);
 
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
-            return;
-        }
-
-        mfusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        mfusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    correct_cur_loc = new LatLng(location.getLatitude(), location.getLongitude());
-                    user.setUser_location(correct_cur_loc);
-                } else {
-                    Toast.makeText(getApplicationContext(), "권한 체크 거부 됌", Toast.LENGTH_SHORT).show();
-                    LatLng loc_temp = new LatLng(0, 0);
-                    user.setUser_location(loc_temp);
-                }
-            }
-        });
+        Current_Location current_location = new Current_Location(this);
+        user.setUser_location(current_location.get_current_location());
 
         save = getSharedPreferences("mysave", MODE_PRIVATE);
         editor = save.edit();
-        //editor.remove("page");
     }
 
     public void login_button(View view) {
@@ -93,7 +74,6 @@ public class Login extends AppCompatActivity {
                         user.setUsername(jsonuser.get("username").toString());
                         user.setEmail(jsonuser.get("email").toString());
                         user.setNickname(jsonuser.get("nickname").toString());
-                        //user.setScore(Integer.parseInt(jsonuser.get("score").toString()));
                         user.setScore(Integer.parseInt(jsonuser.get("score").toString()));
                         user.setActivity(Float.parseFloat(jsonuser.get("activity").toString()));
                         AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
@@ -133,26 +113,5 @@ public class Login extends AppCompatActivity {
     }
     public void move_register(View view) {
         startActivity(new Intent(getApplicationContext(), Register_Activity.class));
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1000:
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "권한 체크 거부 됌", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    mfusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if(location != null) {
-                                correct_cur_loc = new LatLng(location.getLatitude(),location.getLongitude());
-                                user.setUser_location(correct_cur_loc);
-                            }
-                        }
-                    });
-                }
-        }
     }
 }

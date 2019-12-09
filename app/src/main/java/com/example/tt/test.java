@@ -1,11 +1,15 @@
 package com.example.tt;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.AlarmClock;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -13,10 +17,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.content.CursorLoader;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.tt.data.User;
 import com.example.tt.model.FileINfo;
 import com.example.tt.remote.APIUtils;
 import com.example.tt.remote.FileService;
@@ -25,6 +33,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -43,75 +57,37 @@ public class test extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
+        alarm();
 
-        btnChooseFile = (Button) findViewById(R.id.btnChooseFile);
-        btnUpload = (Button) findViewById(R.id.btnUpload);
-        fileService = APIUtils.getFileService();
-
-        btnChooseFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, 0);
-            }
-        });
-
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                File image = new File(imagePath);
-                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image);
-                MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestBody);
-
-                Call<FileINfo> call = fileService.upload("2", body);
-                call.enqueue(new Callback<FileINfo>() {
-                    @Override
-                    public void onResponse(Call<FileINfo> call, Response<FileINfo> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(test.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<FileINfo> call, Throwable t) {
-                        Toast.makeText(test.this, "ERROR: " + t.getMessage(), Toast.LENGTH_SHORT).show();;
-
-                    }
-                });
-            }
-        });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void onWork() {
+        WorkManager workManager = WorkManager.getInstance();
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(simpleWorker.class).build();
+        workManager.enqueue(workRequest);
+    }
 
-        if(resultCode == RESULT_OK){
-            if(data == null){
-                Toast.makeText(this, "Unable to choose image!", Toast.LENGTH_SHORT).show();;
-                return;
-            }
+    public  void periodicwor() {
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(simpleWorker.class, 15, TimeUnit.MINUTES).build();
+        WorkManager workManager = WorkManager.getInstance();
+        workManager.enqueue(periodicWorkRequest);
+    }
 
-            Uri imageURI = data.getData();
-            imagePath = getRealPathFromUri(imageURI);
-
+    public void alarm() {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+        String cur_time_str = format.format(new Date());
+        Date cur_time = new Date();
+        try {
+            cur_time = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").parse(cur_time_str);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+        cur_time.setMinutes(cur_time.getMinutes() + 1);
+        Intent intent = new Intent(this, RestarterBroadcastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, cur_time.getTime(),pendingIntent);
+        Log.e("dd", cur_time.toString());
     }
-
-    private String getRealPathFromUri(Uri uri){
-        String[] projection = {MediaStore.Images.Media.DATA};
-        CursorLoader loader = new CursorLoader(getApplicationContext(), uri, projection, null, null, null);
-        Cursor cursor = loader.loadInBackground();
-        int column_idx = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String result = cursor.getString(column_idx);
-        cursor.close();
-        return result;
-    }
-
-
-
-
-
 }

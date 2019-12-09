@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -138,11 +139,9 @@ public class card_selected extends AppCompatActivity {
             }
         });
 
-        if(act_detail.getText().toString().contains("www")) {
-            act_detail.setLinksClickable(true);
-        }
-        else {
-            act_detail.setLinksClickable(false);
+        if(act_detail.getText().toString().contains("http")) {
+            ImageButton mapbtn = findViewById(R.id.MapButton);
+            mapbtn.setVisibility(View.GONE);
         }
     }
     public Activity set_info(String url) throws JSONException, IOException {

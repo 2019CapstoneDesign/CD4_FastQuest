@@ -67,7 +67,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         context = parent.getContext();
-        slike_list_save.add("tmp");
         fileService = likeAPIUtils.getFileService();
         add_feed_id();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
@@ -128,8 +127,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
             likebutton.setIcon(IconType.Thumb);
             likebutton.setScaleX(1.5f);
             likebutton.setScaleY(1.5f);
-            //likebutton.setEnabled(true);
-            //사진설정
+            if(slike_contains(feed_id)) {
+                likebutton.setLiked(true);
+            }
 
             changeVisibility(selectedItems.get(position));
 
@@ -310,7 +310,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
             cat_arr = new JSONArray(cat_json.get("temp").toString());
             for(int j =0; j<cat_arr.length(); j++) {
                 my_review_json = (JSONObject) cat_arr.get(j);
-                slike_list_save.add(my_review_json.get("feed").toString());
+                if(!slike_contains(my_review_json.get("feed").toString())) {
+                    slike_list_save.add(my_review_json.get("feed").toString());
+                }
             }
 
         }

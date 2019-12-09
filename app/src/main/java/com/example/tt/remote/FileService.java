@@ -21,6 +21,9 @@ public interface FileService {
     @DELETE("likefeed/{username}/{feed}")
     Call<Void> deletePost(@Path("username") String username, @Path("feed") String feed);
 
+    @DELETE("likeassemble/{username}/{feed}")
+    Call<Void> deleteassemble(@Path("username") String username, @Path("feed") String feed);
+
     //@POST("likefeed")
     //Call<likePost> posts(@Body likePost post);
 }

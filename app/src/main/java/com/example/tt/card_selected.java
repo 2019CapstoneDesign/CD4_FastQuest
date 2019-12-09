@@ -137,6 +137,13 @@ public class card_selected extends AppCompatActivity {
                 finish();
             }
         });
+
+        if(act_detail.getText().toString().contains("www")) {
+            act_detail.setLinksClickable(true);
+        }
+        else {
+            act_detail.setLinksClickable(false);
+        }
     }
     public Activity set_info(String url) throws JSONException, IOException {
         url_json Read = new url_json();

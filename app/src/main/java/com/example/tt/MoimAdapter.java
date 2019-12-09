@@ -1,18 +1,14 @@
 package com.example.tt;
 
 
-import android.animation.ValueAnimator;
 import android.content.Context;
-
 import android.content.Intent;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -56,15 +52,15 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
     private JSONObject cat_json = null;
     private JSONArray cat_arr = null;
     JSONObject my_moim_json;
-    FileService fileService;
-
+    FileService moim_like_fileService;
+    JSONObject assemblelike_id = new JSONObject();
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         context = parent.getContext();
        // View view = LayoutInflater.from(parent.getContext()).inflate(R.font.moim_item, parent, false);
-        fileService = likeAPIUtils.getFileService();
+
         add_moim_id();
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.moim_item, parent, false);
@@ -111,7 +107,7 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
             imageView1 = itemView.findViewById(R.id.imageView2);
         }
 
-        void onBind(Data data, int position) {
+        void onBind(final Data data, int position) {
             this.data = data;
             this.position = position;
 
@@ -134,6 +130,7 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
                 @Override
                 public void liked(LikeButton likeButton) {
                     //생김+1
+                    moim_id = data.getId();
                     if (!slike_contains(moim_id)) {
                         edit_score(writen_id,1);
                         slike_list_save.add(moim_id);
@@ -142,22 +139,26 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
 
                             @Override
                             public void onResponse(JSONObject response) {
-
+                                try {
+                                    assemblelike_id.put(moim_id, response.get("id"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         };//Response.Listener 완료
 
                         JSONObject jsonObject = new JSONObject();
                         try {
-                            jsonObject.put("username", user.getUsername());
-                            jsonObject.put("feed", Integer.parseInt(moim_id));
+                            jsonObject.put("user", user.getUser_id());
+                            jsonObject.put("assemble", Integer.parseInt(moim_id));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
-                        review_like_Request review_like_request = new review_like_Request(Request.Method.POST, jsonObject, responseListener, null);
-                        RequestQueue queue = Volley.newRequestQueue(context);
+                        moim_like_Request moim_like_request = new moim_like_Request(Request.Method.POST, jsonObject, responseListener, null);
+                        RequestQueue moim_like_queue = Volley.newRequestQueue(context);
 
-                        queue.add(review_like_request);
+                        moim_like_queue.add(moim_like_request);
                     }
 
                 }
@@ -165,17 +166,24 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
                 @Override
                 public void unLiked(LikeButton likeButton) {
                     //사라짐 -1
+                    moim_id = data.getId();
                     edit_score(writen_id,-1);
                     if (slike_contains(moim_id)) {
                         edit_score(writen_id,-1);
                         slike_list_save.remove(moim_id);
-
-                        Call<Void> call = fileService.deleteassemble(user.getUsername(), moim_id);
-
-                        call.enqueue(new Callback<Void>() {
+                        moim_like_fileService = likeAPIUtils.getFileService();
+                        //Call<Void> call = fileService.deleteassemble(user.getUsername(), moim_id);
+                        String id = "";
+                        try {
+                            id = assemblelike_id.getString(moim_id);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Call<Void> calls = moim_like_fileService.deleteassemble(id);
+                        calls.enqueue(new Callback<Void>() {
                             @Override
                             public void onResponse(Call<Void> call, retrofit2.Response<Void> response) {
-
+                                assemblelike_id.remove(moim_id);
                             }
 
                             @Override
@@ -285,8 +293,9 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
             cat_arr = new JSONArray(cat_json.get("temp").toString());
             for(int j =0; j<cat_arr.length(); j++) {
                 my_moim_json = (JSONObject) cat_arr.get(j);
-                if(!slike_contains(my_moim_json.get("feed").toString())) {
-                    slike_list_save.add(my_moim_json.get("feed").toString());
+                if(!slike_contains(my_moim_json.get("assemble").toString())) {
+                    slike_list_save.add(my_moim_json.get("assemble").toString());
+                    assemblelike_id.put(my_moim_json.get("assemble").toString(), my_moim_json.get("id").toString());
                 }
             }
 

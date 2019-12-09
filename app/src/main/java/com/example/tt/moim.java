@@ -110,8 +110,6 @@ public class moim extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_moim);
 
-        fileService = moimAPIUtils.getFileService();
-
         BottomNavigationView nav_view = findViewById(R.id.nav_view);
         Menu menu = nav_view.getMenu();
         MenuItem menuItem = menu.getItem(1);
@@ -256,7 +254,7 @@ public class moim extends AppCompatActivity {
                                         Toast.makeText(moim.this, "id 받기 성공", Toast.LENGTH_SHORT);
                                         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image_file);
                                         MultipartBody.Part body = MultipartBody.Part.createFormData("photo", image_file.getName(), requestBody);
-
+                                        fileService = moimAPIUtils.getFileService();
                                         Call<FileINfo> call = fileService.upload(upload_moim_id, body);
 
                                         call.enqueue(new Callback<FileINfo>() {

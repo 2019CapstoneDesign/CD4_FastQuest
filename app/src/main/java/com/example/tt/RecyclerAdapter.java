@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 
 import android.content.Intent;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -111,7 +112,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
             imageView2 = itemView.findViewById(R.id.imageView2);
         }
 
-        void onBind(Data data, int position) {
+        void onBind(final Data data, int position) {
             this.data = data;
             this.position = position;
 
@@ -143,6 +144,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
                 @Override
                 public void liked(LikeButton likeButton) {
                     //생김+1
+                    feed_id = data.getId();
                     if (!slike_contains(feed_id)) {
                         edit_score(writen_id,1);
                         slike_list_save.add(feed_id);
@@ -157,7 +159,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
 
                         JSONObject jsonObject = new JSONObject();
                         try {
-                            jsonObject.put("username", user.getUsername());
+                            jsonObject.put("username", user.getUser_id());
                             jsonObject.put("feed", Integer.parseInt(feed_id));
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -174,6 +176,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
                 @Override
                 public void unLiked(LikeButton likeButton) {
                         //사라짐 -1
+                    feed_id = data.getId();
                     if (slike_contains(feed_id)) {
                         edit_score(writen_id,-1);
                         slike_list_save.remove(feed_id);
@@ -183,7 +186,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
                         call.enqueue(new Callback<Void>() {
                             @Override
                             public void onResponse(Call<Void> call, retrofit2.Response<Void> response) {
-
+                                Log.e("ddddddd","sssssssssssssssssssssssssssssssss");
+                                if(response.isSuccessful()) {
+                                    Log.e("ddddddd","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+                                }
                             }
 
                             @Override

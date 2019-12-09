@@ -9,11 +9,11 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class review_like_Request extends JsonObjectRequest {
-    final static private String URL = "http://52.79.125.108/api/likefeed/";
+public class moim_like_Request extends JsonObjectRequest {
+    final static private String URL = "http://52.79.125.108/api/likeassemble/";
     private HashMap<String, String> params;
 
-    public review_like_Request(int method, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+    public moim_like_Request(int method, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
         super(method, URL, jsonRequest, listener, errorListener);
     }
 

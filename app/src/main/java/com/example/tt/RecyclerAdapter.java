@@ -24,6 +24,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.tt.data.User;
 import com.example.tt.model.Data;
 import com.example.tt.model.FileINfo;
+import com.example.tt.remote.FileService;
+import com.example.tt.remote.likeAPIUtils;
 import com.google.gson.JsonObject;
 import com.like.IconType;
 import com.like.LikeButton;
@@ -58,6 +60,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
     private JSONObject cat_json = null;
     private JSONArray cat_arr = null;
     JSONObject my_review_json;
+    FileService fileService;
 
     @NonNull
     @Override
@@ -65,6 +68,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
 
         context = parent.getContext();
         slike_list_save.add("tmp");
+        fileService = likeAPIUtils.getFileService();
         add_feed_id();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new ItemViewHolder(view);
@@ -174,26 +178,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
                         edit_score(writen_id,-1);
                         slike_list_save.remove(feed_id);
 
-                        Response.Listener<JSONObject> responseListener = new Response.Listener<JSONObject>() {
+                        Call<Void> call = fileService.deletePost(user.getUsername(), feed_id);
 
+                        call.enqueue(new Callback<Void>() {
                             @Override
-                            public void onResponse(JSONObject response) {
+                            public void onResponse(Call<Void> call, retrofit2.Response<Void> response) {
 
                             }
-                        };//Response.Listener 완료
 
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put("username", user.getUsername());
-                            jsonObject.put("feed", Integer.parseInt(feed_id));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
 
-                        review_like_Request review_like_request = new review_like_Request(Request.Method.DELETE, jsonObject, responseListener, null);
-                        RequestQueue queue = Volley.newRequestQueue(context);
+                            }
+                        });
 
-                        queue.add(review_like_request);
+
                     }
                 }
             });

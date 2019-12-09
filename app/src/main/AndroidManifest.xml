@@ -48,7 +48,6 @@
         <activity android:name=".Login" />
         <activity android:name=".createreview" />
         <activity android:name=".moim_card_selected" />
-        <activity android:name=".test" />
 
         <activity
             android:name=".ui.login.LoginActivity"

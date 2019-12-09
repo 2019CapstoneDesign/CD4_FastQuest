@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             JSONObject temp = new JSONObject(user_info.get("temp").toString());
             user.setNickname(temp.get("nickname").toString());
             user.setActivity(Float.parseFloat(temp.get("activity").toString()));
+            user.setScore(Integer.parseInt(temp.get("score").toString()));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -130,7 +131,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-
+                        JSONObject user_info;
+                        url_json read = new url_json();
+                        String user_info_url = "http://52.79.125.108/api/user/" + user.getUsername();
+                        try {
+                            user_info = read.readJsonFromUrl(user_info_url);
+                            JSONObject temp = new JSONObject(user_info.get("temp").toString());
+                            user.setNickname(temp.get("nickname").toString());
+                            user.setActivity(Float.parseFloat(temp.get("activity").toString()));
+                            user.setScore(Integer.parseInt(temp.get("score").toString()));
+                            small_view_score.setText(String.valueOf(user.getScore()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         break;
 
                     case R.id.navigation_moim:
@@ -148,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         editor.remove("activity");
                         editor.remove("reload");
                         editor.apply();
+                        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
+                                .remove("isFirstRun").commit();
                         Toast.makeText(MainActivity.this, "로그아웃 되었습니다.", Toast.LENGTH_LONG);
                         startActivity(new Intent(getApplicationContext(), start.class));
                         break;
@@ -229,6 +246,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.remove("activity");
                 editor.remove("reload");
                 editor.apply();
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
+                        .remove("isFirstRun").commit();
                 Toast.makeText(MainActivity.this, "로그아웃 되었습니다.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(getApplicationContext(), start.class));
                 break;

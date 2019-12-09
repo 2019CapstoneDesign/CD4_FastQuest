@@ -51,6 +51,7 @@
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
             android:scaleType="fitXY"
+            android:adjustViewBounds="true"
             app:srcCompat="@drawable/googleg_disabled_color_18" />
 
         <TextView

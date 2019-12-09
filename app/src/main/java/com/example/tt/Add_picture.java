@@ -85,7 +85,7 @@ public class Add_picture extends Activity{
         return storageDir;
     }
 
-    private void getPictureForPhoto() {
+    public void getPictureForPhoto() {
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
         ExifInterface exif = null;
         try {
@@ -114,30 +114,7 @@ public class Add_picture extends Activity{
     }
 
 
-    @Override
-    public void onActivityResult (int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode != RESULT_OK) {
-            return;
-        }
-
-        switch (requestCode) {
-            case GALLERY_CODE:
-                sendPicture(data.getData());
-                break;
-            case CAMERA_CODE:
-                getPictureForPhoto();
-                break;
-
-            default:
-                break;
-
-        }
-    }
-
-    private void sendPicture(Uri imgUri) {
+    public void sendPicture(Uri imgUri) {
         imagePath = getRealPathFromURI(imgUri); // path 경로
         ExifInterface exif = null;
         try {

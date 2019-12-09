@@ -41,6 +41,7 @@ public class createreview extends AppCompatActivity {
     String string_activity, act_id, upload_id;
     File image_file = null;
     FileService fileService;
+    Add_picture add_picture;
     int score;
     static SharedPreferences save;
     static SharedPreferences.Editor editor;
@@ -124,7 +125,7 @@ public class createreview extends AppCompatActivity {
     }
 
     public void add_image(View view) {
-        Add_picture add_picture = new Add_picture(this, image);
+        add_picture = new Add_picture(this, image);
         add_picture.add_photo();
         image_file = add_picture.get_image_file();
     }
@@ -145,6 +146,31 @@ public class createreview extends AppCompatActivity {
         return true;
     }
 
+    private final int CAMERA_CODE = 0;
+    private final int GALLERY_CODE = 1;
+
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+
+        switch (requestCode) {
+            case GALLERY_CODE:
+                add_picture.sendPicture(data.getData());
+                break;
+            case CAMERA_CODE:
+                add_picture.getPictureForPhoto();
+                break;
+
+            default:
+                break;
+
+        }
+    }
 
     @Override
     public void onBackPressed() {

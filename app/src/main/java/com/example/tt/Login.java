@@ -84,7 +84,7 @@ public class Login extends AppCompatActivity {
                                         editor.putString("id", userID);
                                         editor.putString("password", userPassword);
                                         editor.apply();
-                                        startActivity(new Intent(getApplicationContext(), User_survey.class));
+                                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                         finish();
                                     }
                                 })

@@ -88,7 +88,7 @@ public class moim extends AppCompatActivity {
     private JSONArray cat_arr = null;
     final url_json read = new url_json();
     final String url = "http://52.79.125.108/api/category/";
-    String text;
+    Add_picture moim_add_picture;
 
 
     TextView create_moim_tilte;
@@ -223,7 +223,7 @@ public class moim extends AppCompatActivity {
                     add_photo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Add_picture moim_add_picture = new Add_picture(moim.this, create_moim_photo);
+                            moim_add_picture = new Add_picture(moim.this, create_moim_photo);
                             moim_add_picture.add_photo();
                             moim_add_picture.get_image_file();
                         }
@@ -401,6 +401,32 @@ public class moim extends AppCompatActivity {
         mPopupWindow.dismiss();
 
         Toast.makeText(getApplicationContext(), "등록 완료", Toast.LENGTH_SHORT).show();
+    }
+
+    private final int CAMERA_CODE = 0;
+    private final int GALLERY_CODE = 1;
+
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+
+        switch (requestCode) {
+            case GALLERY_CODE:
+                moim_add_picture.sendPicture(data.getData());
+                break;
+            case CAMERA_CODE:
+                moim_add_picture.getPictureForPhoto();
+                break;
+
+            default:
+                break;
+
+        }
     }
 
 }

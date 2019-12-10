@@ -19,7 +19,7 @@ public interface FileService {
     Call<FileINfo> upload(@Path("Id") String id, @Part MultipartBody.Part image);
 
     @PUT("assemble/{moim_id}")
-    Call<FileINfo> upload2(@Path("moim_Id") String moim_d, @Part MultipartBody.Part moim_image);
+    Call<FileINfo> upload2(@Path("moim_id") String moim_d, @Part MultipartBody.Part moim_image);
 
     @DELETE("likefeed/{username}/{feed}")
     Call<Void> deletePost(@Path("username") String username, @Path("feed") String feed);

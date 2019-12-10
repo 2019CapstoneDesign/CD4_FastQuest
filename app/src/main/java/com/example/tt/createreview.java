@@ -210,16 +210,7 @@ public class createreview extends AppCompatActivity {
         editor.apply();
 
         ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editor.remove("page");
-                editor.apply();
-                Toast.makeText(createreview.this, String.valueOf(point) + "점이 적립되었습니다.", Toast.LENGTH_LONG);
-                finish();
-                startActivity(new Intent(getApplicationContext(),MainActivity.class));
-            }
-        });
+ 
 
 
     }

@@ -127,6 +127,8 @@ public class card_selected extends AppCompatActivity {
                     user.setUser_location(current_location.get_current_location());
                     if (Math.abs(user.getUser_location().latitude - play_activity.latitude) < 0.0005 &&//약50m
                             Math.abs(user.getUser_location().longitude - play_activity.longitude) < 0.0005) {
+                        startActivity(new Intent(getApplicationContext(), createreview.class));
+                        finish();
                         //외부 활동 완료, 리뷰시 활동 점수 추가!!
                     }
                     else {
@@ -134,8 +136,6 @@ public class card_selected extends AppCompatActivity {
                     }
                 }
                 editor.apply();
-                startActivity(new Intent(getApplicationContext(), createreview.class));
-                finish();
             }
         });
 

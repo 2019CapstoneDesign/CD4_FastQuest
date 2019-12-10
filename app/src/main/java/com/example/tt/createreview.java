@@ -210,7 +210,7 @@ public class createreview extends AppCompatActivity {
         editor.apply();
 
         ImageButton backButton = findViewById(R.id.backButton);
- 
+
 
 
     }
@@ -412,8 +412,11 @@ public class createreview extends AppCompatActivity {
                 break;
         }
     }
+    BackPressHandler backPressHandler = new BackPressHandler(this);
+
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
+        backPressHandler.onBackPressed();
     }
 }

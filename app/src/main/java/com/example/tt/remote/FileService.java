@@ -18,6 +18,7 @@ public interface FileService {
     @PUT("feed/{Id}")
     Call<FileINfo> upload(@Path("Id") String id, @Part MultipartBody.Part image);
 
+    @Multipart
     @PUT("assemble/{moim_id}")
     Call<FileINfo> upload2(@Path("moim_id") String moim_d, @Part MultipartBody.Part moim_image);
 
@@ -27,6 +28,6 @@ public interface FileService {
     @DELETE("likeassemble/{assemble_like_id}")
     Call<Void> deleteassemble(@Path("assemble_like_id") String assemble_like_id);
 
-    //@POST("likefeed")
+    //@POST("likefeed")                                                           xcf                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    xcfd
     //Call<likePost> posts(@Body likePost post);
 }

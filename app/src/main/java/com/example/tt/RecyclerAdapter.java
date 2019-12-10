@@ -4,7 +4,6 @@ package com.example.tt;
 import android.animation.ValueAnimator;
 import android.content.Context;
 
-import android.content.Intent;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -24,10 +23,8 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.tt.data.User;
 import com.example.tt.model.Data;
-import com.example.tt.model.FileINfo;
+import com.example.tt.remote.APIUtils;
 import com.example.tt.remote.FileService;
-import com.example.tt.remote.likeAPIUtils;
-import com.google.gson.JsonObject;
 import com.like.IconType;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
@@ -40,9 +37,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -68,7 +62,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         context = parent.getContext();
-        fileService = likeAPIUtils.getFileService();
+        fileService = APIUtils.getFileService();
         add_feed_id();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new ItemViewHolder(view);

@@ -74,11 +74,18 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:background="#deb881"
-                android:hint="PASSWORD"
+                android:hint="Password"
                 android:inputType="textPassword"
                 android:padding="10dp"
                 android:textColor="#ffffff"
                 android:textColorHint="#ffffff" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="영문 숫자 8자리 이상, 연속된 숫자 금지" />
 
             <EditText
                 android:id="@+id/passwordText2"
@@ -112,7 +119,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:background="#deb881"
-                android:hint="Date of Birth"
+                android:hint="ex)2019/01/01"
                 android:padding="10dp"
                 android:textColor="#ffffff"
                 android:textColorHint="#ffffff" />

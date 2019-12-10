@@ -20,8 +20,8 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.tt.data.User;
 import com.example.tt.model.Data;
+import com.example.tt.remote.APIUtils;
 import com.example.tt.remote.FileService;
-import com.example.tt.remote.likeAPIUtils;
 import com.like.IconType;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
@@ -171,7 +171,7 @@ public class MoimAdapter extends RecyclerView.Adapter<MoimAdapter.ItemViewHolder
                     if (slike_contains(moim_id)) {
                         edit_score(writen_id,-1);
                         slike_list_save.remove(moim_id);
-                        moim_like_fileService = likeAPIUtils.getFileService();
+                        moim_like_fileService = APIUtils.getFileService();
                         //Call<Void> call = fileService.deleteassemble(user.getUsername(), moim_id);
                         String id = "";
                         try {

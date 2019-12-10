@@ -69,10 +69,12 @@ public class review extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
+                        finish();
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         break;
 
                     case R.id.navigation_moim:
+                        finish();
                         startActivity(new Intent(getApplicationContext(), moim.class));
                         break;
 

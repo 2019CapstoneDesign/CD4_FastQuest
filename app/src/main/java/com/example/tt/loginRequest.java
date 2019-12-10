@@ -16,8 +16,8 @@ public class loginRequest extends StringRequest {
     final static private String URL = "http://52.79.125.108/rest-auth/login/";
     private Map<String, String> parameters;
 
-    public loginRequest(String userID, String userPassword, Response.Listener<String> listener){
-        super(Method.POST, URL, listener, null);//해당 URL에 POST방식으로 파마미터들을 전송함
+    public loginRequest(String userID, String userPassword, Response.Listener<String> listener, Response.ErrorListener errorListener){
+        super(Method.POST, URL, listener, errorListener);//해당 URL에 POST방식으로 파마미터들을 전송함
         parameters = new HashMap<>();
         parameters.put("username", userID);
         parameters.put("password", userPassword);

@@ -3,6 +3,8 @@ package com.example.tt;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
@@ -18,15 +20,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,9 +38,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -49,8 +45,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.tt.data.User;
 
 import com.example.tt.model.FileINfo;
+import com.example.tt.remote.APIUtils;
 import com.example.tt.remote.FileService;
-import com.example.tt.remote.moimAPIUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -60,15 +56,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -88,7 +82,7 @@ public class moim extends AppCompatActivity {
     private JSONArray cat_arr = null;
     final url_json read = new url_json();
     final String url = "http://52.79.125.108/api/category/";
-    Add_picture moim_add_picture;
+
 
 
     TextView create_moim_tilte;
@@ -105,11 +99,22 @@ public class moim extends AppCompatActivity {
     File image_file;
     FileService fileService;
 
+    private Uri photoUri;
+    private final int CAMERA_CODE = 0;
+    private final int GALLERY_CODE = 1;
+    String mImageCaptureName;//이미지 이름
+    private String currentPhotoPath;//실제 사진 파일 경로
+    String imagePath;
+    DialogInterface.OnClickListener camerListener;
+    DialogInterface.OnClickListener albumListener;
+    DialogInterface.OnClickListener cancleListener;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_moim);
-
+        fileService = APIUtils.getFileService();
         BottomNavigationView nav_view = findViewById(R.id.nav_view);
         Menu menu = nav_view.getMenu();
         MenuItem menuItem = menu.getItem(1);
@@ -119,6 +124,7 @@ public class moim extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
+                        finish();
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         break;
 
@@ -126,6 +132,7 @@ public class moim extends AppCompatActivity {
                         break;
 
                     case R.id.navigation_review:
+                        finish();
                         startActivity(new Intent(getApplicationContext(), review.class));
                         break;
                 }
@@ -221,9 +228,40 @@ public class moim extends AppCompatActivity {
                     add_photo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            moim_add_picture = new Add_picture(moim.this, create_moim_photo);
-                            moim_add_picture.add_photo();
-                            moim_add_picture.get_image_file();
+                            camerListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if(ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                        ActivityCompat.requestPermissions(moim.this, new String[] {Manifest.permission.CAMERA}, 1003);
+                                    }
+                                    else {
+                                        if (ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                                                && ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                            ActivityCompat.requestPermissions(moim.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1002);
+                                        }
+                                    }
+                                    takePhoto();
+                                }
+                            };
+                            albumListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if(ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                                            && ActivityCompat.checkSelfPermission(moim.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                        ActivityCompat.requestPermissions(moim.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1002);
+                                    }
+                                    selectGallery();
+                                }
+                            };
+                            cancleListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            };
+
+                            new AlertDialog.Builder(moim.this).setTitle("업로드할 이미지 선택").setPositiveButton("앨범 선택", albumListener).setNeutralButton("사진 촬영", camerListener).setNegativeButton("취소", cancleListener).show();
+
                         }
                     });
                     Button ok = popupView.findViewById(R.id.Ok);
@@ -254,8 +292,8 @@ public class moim extends AppCompatActivity {
                                         Toast.makeText(moim.this, "id 받기 성공", Toast.LENGTH_SHORT);
                                         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image_file);
                                         MultipartBody.Part body = MultipartBody.Part.createFormData("photo", image_file.getName(), requestBody);
-                                        fileService = moimAPIUtils.getFileService();
-                                        Call<FileINfo> call = fileService.upload(upload_moim_id, body);
+
+                                        Call<FileINfo> call = fileService.upload2(upload_moim_id, body);
 
                                         call.enqueue(new Callback<FileINfo>() {
                                             @Override
@@ -401,8 +439,7 @@ public class moim extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "등록 완료", Toast.LENGTH_SHORT).show();
     }
 
-    private final int CAMERA_CODE = 0;
-    private final int GALLERY_CODE = 1;
+
 
     @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data) {
@@ -415,10 +452,10 @@ public class moim extends AppCompatActivity {
 
         switch (requestCode) {
             case GALLERY_CODE:
-                moim_add_picture.sendPicture(data.getData());
+                sendPicture(data.getData());
                 break;
             case CAMERA_CODE:
-                moim_add_picture.getPictureForPhoto();
+                getPictureForPhoto();
                 break;
 
             default:
@@ -426,6 +463,142 @@ public class moim extends AppCompatActivity {
 
         }
     }
+    private void takePhoto() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                    image_file = photoFile;
+                } catch (IOException ex) {
 
+                }
+                if (photoFile != null) {
+                    photoUri = FileProvider.getUriForFile(moim.this, getPackageName(), photoFile);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                    startActivityForResult(intent, CAMERA_CODE);
+                }
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        File dir = new File(Environment.getExternalStorageDirectory() + "/path/");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        mImageCaptureName = timeStamp + ".jpg";
+        File storageDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile()
+                + "/path/" + mImageCaptureName);
+        currentPhotoPath = storageDir.getAbsolutePath();
+        return storageDir;
+    }
+
+    public void getPictureForPhoto() {
+        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(currentPhotoPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int exifOrientation;
+        int exifDegree;
+        if (exif != null) {
+            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            exifDegree = exifOrientationToDegrees(exifOrientation);
+        } else {
+            exifDegree = 0;
+        }
+        create_moim_photo.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기 }
+    }
+
+
+
+    private void selectGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, GALLERY_CODE);
+    }
+
+
+    public void sendPicture(Uri imgUri) {
+        imagePath = getRealPathFromURI(imgUri); // path 경로
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(imagePath);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int exifDegree = exifOrientationToDegrees(exifOrientation);
+
+        File tempfile = new File(imagePath);
+        image_file = tempfile;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);//경로를 통해 비트맵으로 전환
+        create_moim_photo.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
+    }
+
+    private int exifOrientationToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            return 90;
+        }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            return 180;
+        }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            return 270;
+        }
+        return 0;
+    }
+
+    private Bitmap rotate(Bitmap src, float degree) { // Matrix 객체 생성
+        Matrix matrix = new Matrix(); // 회전 각도 셋팅
+        matrix.postRotate(degree); // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
+        return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
+    }
+    private String getRealPathFromURI(Uri contentUri) {
+        int column_index=0;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if(cursor.moveToFirst()){
+            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        }
+        return cursor.getString(column_index);
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1002:
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            case 1003:
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "카메라 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+                break;
+        }
+    }
 }
 

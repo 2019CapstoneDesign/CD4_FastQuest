@@ -1,6 +1,7 @@
 package com.example.tt;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -180,10 +181,11 @@ public class Register_Activity extends AppCompatActivity {
                                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                finish();
+                                                //startActivity(new Intent(getApplicationContext(), Login.class));
                                             }
                                         })
                                         .create();
+                                finish();
                                 dialog.show();
                             } catch (Exception e) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register_Activity.this);

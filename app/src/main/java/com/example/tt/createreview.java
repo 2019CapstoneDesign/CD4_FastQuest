@@ -1,8 +1,19 @@
 package com.example.tt;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,8 +21,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -27,8 +41,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 
 public class createreview extends AppCompatActivity {
@@ -41,10 +62,19 @@ public class createreview extends AppCompatActivity {
     String string_activity, act_id, upload_id;
     File image_file = null;
     FileService fileService;
-    Add_picture add_picture;
     int score;
     static SharedPreferences save;
     static SharedPreferences.Editor editor;
+
+    private Uri photoUri;
+    private final int CAMERA_CODE = 0;
+    private final int GALLERY_CODE = 1;
+    String mImageCaptureName;//이미지 이름
+    private String currentPhotoPath;//실제 사진 파일 경로
+    String imagePath;
+    DialogInterface.OnClickListener camerListener;
+    DialogInterface.OnClickListener albumListener;
+    DialogInterface.OnClickListener cancleListener;
 
     public void add_review(View view) throws JSONException {
         if (check_empty() == false) {
@@ -57,18 +87,32 @@ public class createreview extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     upload_id = response.get("id").toString();
+                    RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image_file);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("image", image_file.getName(), requestBody);
+
+                    Call<FileINfo> call = fileService.upload(upload_id, body);
+
+                    call.enqueue(new Callback<FileINfo>() {
+                        @Override
+                        public void onResponse(Call<FileINfo> call, retrofit2.Response<FileINfo> response) {
+                            if (response.isSuccessful()) {
+                                editor.remove("page");
+                                editor.apply();
+                                Edit_score add_score = new Edit_score(createreview.this);
+                                add_score.edit_score(user.getUsername(), score);
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FileINfo> call, Throwable t) {
+                        }
+                    });
                 } catch (
                         JSONException e) {
                     e.printStackTrace();
                 }
-                upload_image Upload = new upload_image(fileService);
-                Upload.send_image(upload_id, image_file);
-                editor.remove("page");
-                editor.apply();
-                Edit_score add_score = new Edit_score(createreview.this);
-                add_score.edit_score(user.getUsername(), score);
-                finish();
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
             }
         };//Response.Listener 완료
 
@@ -113,9 +157,39 @@ public class createreview extends AppCompatActivity {
     }
 
     public void add_image(View view) {
-        add_picture = new Add_picture(this, image);
-        add_picture.add_photo();
-        image_file = add_picture.get_image_file();
+        camerListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(createreview.this, new String[] {Manifest.permission.CAMERA}, 1003);
+                }
+                else {
+                    if (ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(createreview.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1002);
+                    }
+                }
+                takePhoto();
+            }
+        };
+        albumListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(createreview.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1002);
+                }
+                selectGallery();
+            }
+        };
+        cancleListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        };
+
+        new AlertDialog.Builder(createreview.this).setTitle("업로드할 이미지 선택").setPositiveButton("앨범 선택", albumListener).setNeutralButton("사진 촬영", camerListener).setNegativeButton("취소", cancleListener).show();
     }
 
     public boolean check_empty() {
@@ -134,8 +208,147 @@ public class createreview extends AppCompatActivity {
         return true;
     }
 
-    private final int CAMERA_CODE = 0;
-    private final int GALLERY_CODE = 1;
+
+    private void takePhoto() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (intent.resolveActivity(createreview.this.getPackageManager()) != null) {
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                    image_file = photoFile;
+                } catch (IOException ex) {
+
+                }
+                if (photoFile != null) {
+                    photoUri = FileProvider.getUriForFile(createreview.this, createreview.this.getPackageName(), photoFile);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                    createreview.this.startActivityForResult(intent, CAMERA_CODE);
+                }
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        File dir = new File(Environment.getExternalStorageDirectory() + "/path/");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        mImageCaptureName = timeStamp + ".jpg";
+        File storageDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile()
+                + "/path/" + mImageCaptureName);
+        currentPhotoPath = storageDir.getAbsolutePath();
+        return storageDir;
+    }
+
+    public void getPictureForPhoto() {
+        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(currentPhotoPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int exifOrientation;
+        int exifDegree;
+        if (exif != null) {
+            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            exifDegree = exifOrientationToDegrees(exifOrientation);
+        } else {
+            exifDegree = 0;
+        }
+        image.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기 }
+    }
+
+
+
+    private void selectGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        createreview.this.startActivityForResult(intent, GALLERY_CODE);
+    }
+
+
+    public void sendPicture(Uri imgUri) {
+        imagePath = getRealPathFromURI(imgUri); // path 경로
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(imagePath);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int exifDegree = exifOrientationToDegrees(exifOrientation);
+
+        File tempfile = new File(imagePath);
+        image_file = tempfile;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);//경로를 통해 비트맵으로 전환
+        image.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
+    }
+
+    private int exifOrientationToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            return 90;
+        }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            return 180;
+        }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            return 270;
+        }
+        return 0;
+    }
+
+    private Bitmap rotate(Bitmap src, float degree) { // Matrix 객체 생성
+        Matrix matrix = new Matrix(); // 회전 각도 셋팅
+        matrix.postRotate(degree); // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
+        return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
+    }
+    private String getRealPathFromURI(Uri contentUri) {
+        int column_index=0;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if(cursor.moveToFirst()){
+            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        }
+        return cursor.getString(column_index);
+    }
+
+
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1002:
+                if (ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(createreview.this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            case 1003:
+                if (ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(createreview.this, "카메라 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    if (ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(createreview.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(createreview.this, "저장소 권한 체크 거부", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+                break;
+        }
+    }
+
 
     @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data) {
@@ -148,10 +361,10 @@ public class createreview extends AppCompatActivity {
 
         switch (requestCode) {
             case GALLERY_CODE:
-                add_picture.sendPicture(data.getData());
+                sendPicture(data.getData());
                 break;
             case CAMERA_CODE:
-                add_picture.getPictureForPhoto();
+                getPictureForPhoto();
                 break;
 
             default:

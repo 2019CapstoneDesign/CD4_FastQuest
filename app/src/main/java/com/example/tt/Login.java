@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.example.tt.data.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -104,8 +105,19 @@ public class Login extends AppCompatActivity {
             }
         };//Response.Listener 완료
 
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                dialog = builder.setMessage("Login fail")
+                        .setNegativeButton("OK", null)
+                        .create();
+                dialog.show();
+            }
+        };
+
         //Volley 라이브러리를 이용해서 실제 서버와 통신을 구현하는 부분
-        loginRequest login_Request = new loginRequest(userID, userPassword, responseListener);
+        loginRequest login_Request = new loginRequest(userID, userPassword, responseListener, errorListener);
         RequestQueue queue = Volley.newRequestQueue(Login.this);
 
         queue.add(login_Request);

@@ -122,6 +122,8 @@ public class card_selected extends AppCompatActivity {
                     // 실내 활동이라면
                     editor.putInt("score",0);
                     Toast.makeText(card_selected.this, "실내활동 입니다.\n리뷰로만 점수를 얻을 수 있습니다.", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(), createreview.class));
+                    finish();
                 } else {
                     // 외부 활동이라면
                     user.setUser_location(current_location.get_current_location());
